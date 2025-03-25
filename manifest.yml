@@ -1,0 +1,41 @@
+modules:
+  jira:issuePanel:
+    - key: growthbook-issue-panel-widget
+      resource: main-widget
+      resolver:
+        function: resolver
+      render: native
+      title: GrowthBook for Jira
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+  jira:adminPage:
+    - key: growthbook-configure-page
+      resource: main-configure-page
+      title: Configure your GrowthBook integration
+      render: native
+      resolver:
+        function: resolver
+      useAsConfig: true
+    - key: growthbook-get-started-page
+      resource: main-get-started-page
+      title: Get started with GrowthBook for Jira
+      render: native
+      resolver:
+        function: resolver
+      useAsGetStarted: true
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main-widget
+    path: src/frontend/widget/index.jsx
+  - key: main-configure-page
+    path: src/frontend/configure/index.jsx
+  - key: main-get-started-page
+    path: src/frontend/get-started/index.jsx
+app:
+  runtime:
+    name: nodejs20.x
+  id: ari:cloud:ecosystem::app/78d5cfe5-5311-4e0e-9bbd-5be2ae1eb445
+permissions:
+  scopes:
+    - storage:app
