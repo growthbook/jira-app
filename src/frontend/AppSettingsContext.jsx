@@ -15,6 +15,7 @@ function isStoredAppSettings(value) {
   if (typeof value?.apiKey !== "string") return false;
   if (typeof value?.isCloud !== "boolean") return false;
   if (typeof value?.gbHost !== "string") return false;
+  if (typeof value?.gbApp !== "string") return false;
 
   return true;
 }
@@ -23,7 +24,8 @@ export const AppSettingsContextProvider = ({ children }) => {
   const [apiKey, setApiKey] = useState("");
   const [isCloud, setIsCloud] = useState(true);
   const [gbHost, setGbHost] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [gbApp, setGbApp] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(undefined);
   const [saving, setSaving] = useState(false);
 
@@ -43,6 +45,7 @@ export const AppSettingsContextProvider = ({ children }) => {
         setApiKey(settings.apiKey);
         setIsCloud(settings.isCloud);
         setGbHost(settings.gbHost);
+        setGbApp(settings.gbApp);
         setError(undefined);
         setLoading(false);
       })
@@ -51,23 +54,27 @@ export const AppSettingsContextProvider = ({ children }) => {
 
   const pushUpdates = useMemo(
     () =>
-      debounce((apiKey, isCloud, gbHost) => {
-        setSaving(true);
-        setError(undefined);
-        invoke("updateAppSettings", { apiKey, isCloud, gbHost }).then(
-          (result) => {
-            if (result !== true) setError("Failed to save settings");
-            setSaving(false);
-          }
-        );
-      }, 1000),
+      debounce(
+        (apiKey, isCloud, gbHost, gbApp) => {
+          setSaving(true);
+          setError(undefined);
+          invoke("updateAppSettings", { apiKey, isCloud, gbHost, gbApp }).then(
+            (result) => {
+              if (result !== true) setError("Failed to save settings");
+              setSaving(false);
+            }
+          );
+        },
+        1000,
+        { immediate: false }
+      ),
     []
   );
 
   useEffect(() => {
     if (loading) return;
-    pushUpdates(apiKey, isCloud, gbHost);
-  }, [apiKey, isCloud, gbHost]);
+    pushUpdates(apiKey, isCloud, gbHost, gbApp);
+  }, [apiKey, isCloud, gbHost, gbApp]);
 
   return (
     <AppSettingsContext.Provider
@@ -80,6 +87,8 @@ export const AppSettingsContextProvider = ({ children }) => {
         setIsCloud,
         gbHost,
         setGbHost,
+        gbApp,
+        setGbApp,
         saving,
       }}
     >
