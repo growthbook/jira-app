@@ -1,5 +1,9 @@
 import Resolver from "@forge/resolver";
-import { getAppSettings, updateAppSettings } from "../utils/storage";
+import {
+  getAppSettings,
+  getIssueData,
+  updateAppSettings,
+} from "../utils/storage";
 
 const resolver = new Resolver();
 
@@ -13,6 +17,11 @@ resolver.define("updateAppSettings", async (req) => {
   // TODO: validation
   await updateAppSettings(updates);
   return true;
+});
+
+resolver.define("getIssueData", async (req) => {
+  // TODO: validation
+  return getIssueData(req.payload.issueId);
 });
 
 export const handler = resolver.getDefinitions();

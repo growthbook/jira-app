@@ -1,12 +1,6 @@
 import { kvs } from "@forge/kvs";
 import { CLOUD_API_HOST, CLOUD_APP_ORIGIN } from "./consts";
-
-interface StoredAppSettings {
-  apiKey: string;
-  isCloud: boolean;
-  gbHost: string;
-  gbApp: string;
-}
+import { IssueData, StoredAppSettings } from "./types";
 
 const APP_SETTINGS_KEY = "GB_APP_SETTINGS";
 const APP_SETTINGS_DEFAULTS: StoredAppSettings = {
@@ -30,3 +24,9 @@ export async function updateAppSettings(
   });
   return true;
 }
+
+export async function getIssueData(issueKey: string) {
+  return (await kvs.get(issueKey)) || {};
+}
+
+export async function setIssueData(issueKey: string, issueData: IssueData) {}

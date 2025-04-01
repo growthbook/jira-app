@@ -13,7 +13,6 @@
     "outDir": "dist/js",
     "typeRoots": ["node_modules/@types"],
     "paths": {
-      "@/*": ["./src/*"],
       "*": ["./*"]
     }
   }

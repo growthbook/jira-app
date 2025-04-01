@@ -12,7 +12,7 @@ export async function apiCall(
   const init: RequestInit = { ...options };
   init.headers = {};
   init.headers["Authorization"] = `Bearer ${apiKey}`;
-  init.credentials = "include";
+  init.credentials = "omit";
   if (init.body && !init.headers["Content-Type"]) {
     init.headers["Content-Type"] = "application/json";
   }
@@ -35,13 +35,13 @@ export default function useApi<Response = unknown>(
   path: string | null,
   useSwrSettings?: SWRConfiguration
 ) {
-  const { gbHost, apiKey } = useAppSettingsContext();
+  const { gbHost, apiKey, loading } = useAppSettingsContext();
   const curriedApiCall: CurriedApiCallType<Response> = useCallback(
     async (url: string | null, options: Omit<RequestInit, "headers"> = {}) => {
-      if (!url) return;
+      if (loading || !url || !apiKey || !gbHost) return;
       return await apiCall(gbHost, apiKey, url, options);
     },
-    [gbHost, apiKey]
+    [gbHost, apiKey, loading]
   );
 
   return useSWR<Response, Error>(

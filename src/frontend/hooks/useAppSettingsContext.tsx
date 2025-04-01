@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import debounce from "debounce";
 import { invoke } from "@forge/bridge";
+import { isStoredAppSettings } from "../../utils/types";
 
 interface AppSettings {
   loading: boolean;
@@ -24,24 +25,6 @@ interface AppSettings {
 }
 
 const AppSettingsContext = createContext<AppSettings | null>(null);
-
-interface StoredAppSettings {
-  apiKey: string;
-  isCloud: boolean;
-  gbHost: string;
-  gbApp: string;
-}
-
-function isStoredAppSettings(value: unknown): value is StoredAppSettings {
-  if (typeof value !== "object") return false;
-  const typecast = value as StoredAppSettings;
-  if (typeof typecast?.apiKey !== "string") return false;
-  if (typeof typecast?.isCloud !== "boolean") return false;
-  if (typeof typecast?.gbHost !== "string") return false;
-  if (typeof typecast?.gbApp !== "string") return false;
-
-  return true;
-}
 
 export const AppSettingsContextProvider = ({
   children,

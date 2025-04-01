@@ -11,6 +11,8 @@ import {
   useAppSettingsContext,
 } from "../hooks/useAppSettingsContext";
 import { JiraContextProvider, useJiraContext } from "../hooks/useJiraContext";
+import IssuePanel from "./IssuePanel";
+import LoadingSpinner from "./LoadingSpinner";
 
 const App = () => {
   const {
@@ -20,17 +22,11 @@ const App = () => {
   } = useAppSettingsContext();
 
   const {
-    context: { localId, siteUrl, extension },
+    context: { localId, siteUrl },
     loading: contextLoading,
   } = useJiraContext();
 
-  if (settingsLoading || contextLoading)
-    return (
-      <Text>
-        <Spinner />
-        Loading...
-      </Text>
-    );
+  if (settingsLoading || contextLoading) return <LoadingSpinner />;
 
   console.log("Got local id", localId);
 
@@ -59,14 +55,7 @@ const App = () => {
     );
   }
 
-  // TODO: handle null
-  const issueId = extension?.issue?.id;
-
-  return (
-    <>
-      <Text>Test</Text>
-    </>
-  );
+  return <IssuePanel />;
 };
 
 ForgeReconciler.render(
