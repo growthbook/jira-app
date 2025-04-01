@@ -14,7 +14,7 @@ import ForgeReconciler, {
 import {
   AppSettingsContextProvider,
   useAppSettingsContext,
-} from "../AppSettingsContext";
+} from "../hooks/useAppSettingsContext";
 import { CLOUD_API_HOST, CLOUD_APP_ORIGIN } from "../../utils/consts";
 import { Icon } from "@forge/react";
 
@@ -33,11 +33,11 @@ const App = () => {
     saving,
   } = useAppSettingsContext();
 
-  const getGbLink = (path) => {
+  const getGbLink = (path: string) => {
     try {
       const url = new URL(path, gbApp);
       return (
-        <Link target={null} href={url.toString()}>
+        <Link openNewTab href={url.toString()}>
           {path}
         </Link>
       );
@@ -64,7 +64,7 @@ const App = () => {
             id="gb-cloud-input"
             isChecked={isCloud}
             onChange={(e) => {
-              setIsCloud(e.target.checked);
+              setIsCloud(e.target.checked!);
               if (e.target.checked) {
                 setGbHost(CLOUD_API_HOST);
                 setGbApp(CLOUD_APP_ORIGIN);
@@ -108,7 +108,7 @@ const App = () => {
       <Box>
         {error ? (
           <Text>
-            <Icon glyph="cross" />
+            <Icon label="" glyph="cross" />
             There was an error:
           </Text>
         ) : saving ? (
@@ -118,7 +118,7 @@ const App = () => {
           </Text>
         ) : (
           <Text>
-            <Icon glyph="check" />
+            <Icon label="checkmark" glyph="check" />
             Settings synced
           </Text>
         )}

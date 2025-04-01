@@ -4,29 +4,56 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  ReactNode,
 } from "react";
 import debounce from "debounce";
 import { invoke } from "@forge/bridge";
 
-const AppSettingsContext = createContext(null);
+interface AppSettings {
+  loading: boolean;
+  error: string | undefined;
+  apiKey: string;
+  setApiKey: (value: string) => void;
+  isCloud: boolean;
+  setIsCloud: (value: boolean) => void;
+  gbHost: string;
+  setGbHost: (value: string) => void;
+  gbApp: string;
+  setGbApp: (value: string) => void;
+  saving: boolean;
+}
 
-function isStoredAppSettings(value) {
+const AppSettingsContext = createContext<AppSettings | null>(null);
+
+interface StoredAppSettings {
+  apiKey: string;
+  isCloud: boolean;
+  gbHost: string;
+  gbApp: string;
+}
+
+function isStoredAppSettings(value: unknown): value is StoredAppSettings {
   if (typeof value !== "object") return false;
-  if (typeof value?.apiKey !== "string") return false;
-  if (typeof value?.isCloud !== "boolean") return false;
-  if (typeof value?.gbHost !== "string") return false;
-  if (typeof value?.gbApp !== "string") return false;
+  const typecast = value as StoredAppSettings;
+  if (typeof typecast?.apiKey !== "string") return false;
+  if (typeof typecast?.isCloud !== "boolean") return false;
+  if (typeof typecast?.gbHost !== "string") return false;
+  if (typeof typecast?.gbApp !== "string") return false;
 
   return true;
 }
 
-export const AppSettingsContextProvider = ({ children }) => {
+export const AppSettingsContextProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
   const [apiKey, setApiKey] = useState("");
   const [isCloud, setIsCloud] = useState(true);
   const [gbHost, setGbHost] = useState("");
   const [gbApp, setGbApp] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {

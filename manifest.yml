@@ -27,11 +27,11 @@ modules:
       handler: index.handler
 resources:
   - key: main-widget
-    path: src/frontend/widget/index.jsx
+    path: src/frontend/widget/index.tsx
   - key: main-configure-page
-    path: src/frontend/configure/index.jsx
+    path: src/frontend/configure/index.tsx
   - key: main-get-started-page
-    path: src/frontend/get-started/index.jsx
+    path: src/frontend/get-started/index.tsx
 app:
   runtime:
     name: nodejs20.x
