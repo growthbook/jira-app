@@ -29,4 +29,7 @@ export async function getIssueData(issueKey: string) {
   return (await kvs.get(issueKey)) || {};
 }
 
-export async function setIssueData(issueKey: string, issueData: IssueData) {}
+export async function setIssueData(issueKey: string, issueData: IssueData) {
+  await kvs.set(issueKey, issueData);
+  return true;
+}
