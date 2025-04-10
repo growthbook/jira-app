@@ -1,67 +1,92 @@
-// TODO: naming
-import React, { useState } from "react";
+import React from "react";
 import LoadingSpinner from "./LoadingSpinner";
-import { Box, Button, ErrorMessage, Inline, Select, Text } from "@forge/react";
+import { Box, ErrorMessage, Select } from "@forge/react";
 import useApi from "../hooks/useApi";
-import { ApiFeature } from "../../utils/gbTypes";
 import { useIssueContext } from "../hooks/useIssueContext";
+import { Experiment, Feature } from "../../utils/types";
 
 export default function UnlinkedIssue() {
   const {
     isLoading: featuresLoading,
     error: featuresError,
     data: featuresData,
-  } = useApi<{ features: ApiFeature[] }>("/api/v1/features");
+  } = useApi<{ features: Feature[] }>("/api/v1/features", {}, "features");
+  const {
+    isLoading: experimentsLoading,
+    error: experimentsError,
+    data: experimentsData,
+  } = useApi<{ experiments: Experiment[] }>(
+    "/api/v1/experiments",
+    {},
+    "experiments"
+  );
+
   const {
     setIssueData,
     loading: contextLoading,
     error: contextError,
   } = useIssueContext();
-  console.log("Working with features data", featuresData);
 
-  const [selectedOption, setSelectedOption] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
+  if (contextLoading || featuresLoading || experimentsLoading)
+    return (
+      <LoadingSpinner
+        text={
+          contextLoading
+            ? "Connecting to Jira..."
+            : "Loading your features and experiments..."
+        }
+      />
+    );
 
-  if (contextLoading || featuresLoading || !featuresData)
-    return <LoadingSpinner />;
-
+  if (!featuresData || !experimentsData) {
+    return (
+      <ErrorMessage>
+        Failed to load your features from GrowthBook. Please try again later.
+      </ErrorMessage>
+    );
+  }
   if (featuresError)
     return <ErrorMessage>{featuresError.message}</ErrorMessage>;
+  if (experimentsError)
+    return <ErrorMessage>{experimentsError.message}</ErrorMessage>;
 
-  const unarchived = featuresData.features.filter((f) => !f.archived);
-  const idSet = new Set(unarchived.map((f) => f.id));
-  const idSelectOptions = unarchived.map((f) => ({ label: f.id, value: f.id }));
-  const saveSelection = () => {
-    setIssueData({
-      linkedObject: { type: "feature", id: selectedOption!.value },
-    });
-  };
+  const featureLabelMap = Object.fromEntries(
+    featuresData.features.filter((f) => !f.archived).map((f) => [f.id, f.id])
+  );
+  const experimentLabelMap = Object.fromEntries(
+    experimentsData.experiments
+      .filter((e) => !e.archived)
+      .map((e) => [e.id, e.name])
+  );
+  const featOptions = Object.entries(featureLabelMap).map(([value, label]) => ({
+    label,
+    value,
+  }));
+  const expOptions = Object.entries(experimentLabelMap).map(
+    ([value, label]) => ({
+      label,
+      value,
+    })
+  );
 
   return (
     <Box>
       <Select
-        options={idSelectOptions}
-        onChange={setSelectedOption}
-        value={selectedOption}
-        isClearable
-        placeholder="Select a feature to link to this issue"
+        isSearchable
+        options={[
+          { options: featOptions, label: "Features" },
+          { options: expOptions, label: "Experiments" },
+        ]}
+        onChange={(selectedOption) => {
+          const type = featureLabelMap[selectedOption.value]
+            ? "feature"
+            : "experiment";
+          setIssueData({
+            linkedObject: { type, id: selectedOption.value },
+          });
+        }}
+        placeholder="Choose a feature or experiment to link to this issue"
       />
-      <Inline>
-        <Button
-          isDisabled={!selectedOption}
-          onClick={() => setSelectedOption(null)}
-        >
-          Cancel
-        </Button>
-        <Button
-          isDisabled={!idSet.has(selectedOption?.value || "")}
-          onClick={saveSelection}
-        >
-          Save
-        </Button>
-      </Inline>
       {contextError && <ErrorMessage>{contextError}</ErrorMessage>}
     </Box>
   );

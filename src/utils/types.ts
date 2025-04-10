@@ -107,6 +107,13 @@ export interface FeatureRevision {
 }
 export interface Feature {
   id: string;
+  archived: boolean;
+  description: string;
+  dateCreated: boolean;
+  dateUpdated: boolean;
+  owner: string;
+  project: string;
+  tags: string[];
   environments: Record<string, FeatureEnvironment>;
   revision: FeatureRevision;
   valueType: ValueType;
@@ -130,6 +137,7 @@ interface ExperimentPhase {
 
 export interface Experiment {
   id: string;
+  archived: boolean;
   trackingKey: string;
   name: string;
   type: "standard" | "multi-armed-bandit";

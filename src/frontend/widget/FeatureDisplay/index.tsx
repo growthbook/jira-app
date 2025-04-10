@@ -2,11 +2,9 @@ import {
   Box,
   Button,
   Inline,
-  Label,
   Lozenge,
   Select,
   Text,
-  Toggle,
   Tooltip,
 } from "@forge/react";
 import React from "react";
@@ -26,7 +24,7 @@ function RevisionDisplay({
 }) {
   return (
     <Tooltip content={`Published ${date} by ${publishedBy}`}>
-      <Lozenge>Version {version}</Lozenge>
+      Published revision: <Lozenge>rev {version}</Lozenge>
     </Tooltip>
   );
 }
@@ -68,7 +66,7 @@ export default function FeatureDisplay({ feature }: { feature: Feature }) {
 
   return (
     <Box>
-      <Inline>
+      <Inline alignBlock="center">
         <Text>
           Linked with feature <Lozenge>{feature.id}</Lozenge>
         </Text>
@@ -82,19 +80,19 @@ export default function FeatureDisplay({ feature }: { feature: Feature }) {
         </Button>
       </Inline>
 
-      <Inline>
+      <Inline alignBlock="center" space="space.100">
         <RevisionDisplay revision={feature.revision} />
-        <Label labelFor="environment-selector">Environment</Label>
-        <Select
-          id="environment-selector"
-          options={Object.keys(feature.environments).map((env) => ({
-            label: env,
-            value: env,
-          }))}
-          value={selectedEnv}
-          onChange={setSelectedEnv}
-          spacing="compact"
-        />
+        <Box xcss={{ width: "200px" }}>
+          <Select
+            options={Object.keys(feature.environments).map((env) => ({
+              label: env,
+              value: env,
+            }))}
+            value={selectedEnv}
+            onChange={setSelectedEnv}
+            spacing="compact"
+          />
+        </Box>
       </Inline>
       <Box>
         {selectedEnv && (

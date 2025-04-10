@@ -12,7 +12,8 @@ export default function IssuePanel() {
     error: issueDataError,
   } = useIssueContext();
 
-  if (issueDataLoading) return <LoadingSpinner />;
+  if (issueDataLoading)
+    return <LoadingSpinner text="Loading your saved data..." />;
 
   if (issueDataError) {
     return <ErrorMessage>{issueDataError}</ErrorMessage>;

@@ -26,7 +26,7 @@ export default function LinkedObjectInfo({
     data: apiData,
   } = useApi<LinkedObjectResponse>(`/api/v1/${objectPath}`);
 
-  if (apiLoading) return <LoadingSpinner />;
+  if (apiLoading) return <LoadingSpinner text={`Fetching your ${type}...`} />;
   if (apiError) return <ErrorMessage>{apiError.message}</ErrorMessage>;
 
   if (type === "feature") {

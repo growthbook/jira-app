@@ -27,7 +27,8 @@ const App = () => {
     loading: contextLoading,
   } = useJiraContext();
 
-  if (settingsLoading || contextLoading) return <LoadingSpinner />;
+  if (settingsLoading || contextLoading)
+    return <LoadingSpinner text="Connecting to Jira..." />;
 
   const [APP_ID, ENV_ID] = (localId || "").split("/").slice(1, 3);
   const configureLink = `${siteUrl}/jira/settings/apps/configure/${APP_ID}/${ENV_ID}`;
