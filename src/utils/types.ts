@@ -151,6 +151,13 @@ export interface Experiment {
     description: string;
   }>;
   phases: ExperimentPhase[];
+  resultSummary?: {
+    status: string;
+    winner: string;
+    conclusions: string;
+    releasedVariationId: string;
+    excludeFromPayload: boolean;
+  };
 }
 export interface ExperimentResponse {
   experiment: Experiment;

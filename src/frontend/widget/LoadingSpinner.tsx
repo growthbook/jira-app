@@ -1,11 +1,11 @@
 import React from "react";
+import { Inline, Spinner, Text } from "@forge/react";
 
-import { Spinner, Text } from "@forge/react";
 export default function LoadingSpinner({ text }: { text?: string }) {
   return (
-    <Text>
+    <Inline alignBlock="center" space="space.050">
       <Spinner />
-      {text || "Loading..."}
-    </Text>
+      <Text>{text || "Loading..."}</Text>
+    </Inline>
   );
 }

@@ -16,6 +16,7 @@ import type {
 import GrowthBookLink from "../GrowthBookLink";
 import usePersistedState from "../../hooks/usePersistedState";
 import { useIssueContext } from "../../hooks/useIssueContext";
+import { formatDate } from "../../../utils";
 
 function RevisionDisplay({
   revision: { version, comment: _comment, date, publishedBy },
@@ -23,17 +24,15 @@ function RevisionDisplay({
   revision: FeatureRevision;
 }) {
   return (
-    <Tooltip content={`Published ${date} by ${publishedBy}`}>
+    <Tooltip content={`Published ${formatDate(date)} by ${publishedBy}`}>
       Published revision: <Lozenge>rev {version}</Lozenge>
     </Tooltip>
   );
 }
 
 function EnvironmentDisplay({
-  featureId,
   featureEnv,
 }: {
-  featureId: string;
   featureEnv: FeatureEnvironment;
 }) {
   const activeRules = featureEnv.rules.filter((rule) => rule.enabled);
@@ -51,9 +50,6 @@ function EnvironmentDisplay({
           }`}
         .
       </Text>
-      <GrowthBookLink path={`/features/${featureId}`}>
-        Manage in GrowthBook
-      </GrowthBookLink>
     </Box>
   );
 }
@@ -97,11 +93,13 @@ export default function FeatureDisplay({ feature }: { feature: Feature }) {
       <Box>
         {selectedEnv && (
           <EnvironmentDisplay
-            featureId={feature.id}
             featureEnv={feature.environments[selectedEnv.value]}
           />
         )}
       </Box>
+      <GrowthBookLink path={`/features/${feature.id}`}>
+        Manage in GrowthBook
+      </GrowthBookLink>
     </Box>
   );
 }
