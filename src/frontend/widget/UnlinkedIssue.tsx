@@ -4,7 +4,6 @@ import LoadingSpinner from "./LoadingSpinner";
 import { Box, Button, ErrorMessage, Inline, Select, Text } from "@forge/react";
 import useApi from "../hooks/useApi";
 import { ApiFeature } from "../../utils/gbTypes";
-import { invoke } from "@forge/bridge";
 import { useIssueContext } from "../hooks/useIssueContext";
 
 export default function UnlinkedIssue() {
@@ -14,16 +13,16 @@ export default function UnlinkedIssue() {
     data: featuresData,
   } = useApi<{ features: ApiFeature[] }>("/api/v1/features");
   const {
-    issueId,
     setIssueData,
     loading: contextLoading,
     error: contextError,
   } = useIssueContext();
+  console.log("Working with features data", featuresData);
 
-  const [selectedOption, setSelectedOption] = useState<
-    { label: string; value: string } | undefined
-  >(undefined);
-  console.log("Selected id is", selectedOption);
+  const [selectedOption, setSelectedOption] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
 
   if (contextLoading || featuresLoading || !featuresData)
     return <LoadingSpinner />;
@@ -35,8 +34,7 @@ export default function UnlinkedIssue() {
   const idSet = new Set(unarchived.map((f) => f.id));
   const idSelectOptions = unarchived.map((f) => ({ label: f.id, value: f.id }));
   const saveSelection = () => {
-    invoke("setIssueData", {
-      issueId,
+    setIssueData({
       linkedObject: { type: "feature", id: selectedOption!.value },
     });
   };
@@ -53,7 +51,7 @@ export default function UnlinkedIssue() {
       <Inline>
         <Button
           isDisabled={!selectedOption}
-          onClick={() => setSelectedOption(undefined)}
+          onClick={() => setSelectedOption(null)}
         >
           Cancel
         </Button>

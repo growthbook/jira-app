@@ -58,19 +58,19 @@ export const IssueContextProvider = ({ children }: { children: ReactNode }) => {
         (issueData) => {
           setSaving(true);
           setError(undefined);
-          invoke("setIssueData", { issueId, ...issueData }).then((result) => {
+          invoke("setIssueData", { issueId, issueData }).then((result) => {
             if (result !== true) setError("Failed to save issue data");
             setSaving(false);
           });
         },
         1000,
-        { immediate: false }
+        { immediate: true }
       ),
-    []
+    [issueId]
   );
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || contextLoading) return;
     pushUpdates(issueData);
   }, [issueData]);
 

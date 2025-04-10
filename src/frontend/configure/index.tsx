@@ -1,50 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import ForgeReconciler, {
   Box,
-  Checkbox,
   ErrorMessage,
   Inline,
   Label,
-  Link,
   Spinner,
   Text,
   Textfield,
   HelperMessage,
+  Lozenge,
 } from "@forge/react";
 import {
   AppSettingsContextProvider,
   useAppSettingsContext,
 } from "../hooks/useAppSettingsContext";
-import { CLOUD_API_HOST, CLOUD_APP_ORIGIN } from "../../utils/consts";
 import { Icon } from "@forge/react";
+import GrowthBookLink from "../widget/GrowthBookLink";
 
 const App = () => {
-  const {
-    apiKey,
-    setApiKey,
-    gbHost,
-    setGbHost,
-    isCloud,
-    setIsCloud,
-    gbApp,
-    setGbApp,
-    error,
-    loading,
-    saving,
-  } = useAppSettingsContext();
-
-  const getGbLink = (path: string) => {
-    try {
-      const url = new URL(path, gbApp);
-      return (
-        <Link openNewTab href={url.toString()}>
-          {path}
-        </Link>
-      );
-    } catch {
-      return path;
-    }
-  };
+  const { apiKey, setApiKey, error, loading, saving } = useAppSettingsContext();
 
   if (loading) {
     return (
@@ -59,37 +33,7 @@ const App = () => {
     <Box>
       <Box>
         <Inline>
-          <Label labelFor="gb-cloud-input">Using GrowthBook Cloud?</Label>
-          <Checkbox
-            id="gb-cloud-input"
-            isChecked={isCloud}
-            onChange={(e) => {
-              setIsCloud(e.target.checked!);
-              if (e.target.checked) {
-                setGbHost(CLOUD_API_HOST);
-                setGbApp(CLOUD_APP_ORIGIN);
-              }
-            }}
-          />
-        </Inline>
-        <Label labelFor="gb-host-input">GrowthBook API Host</Label>
-        <Textfield
-          id="gb-host-input"
-          value={gbHost}
-          isDisabled={isCloud}
-          onChange={(e) => setGbHost(e.target.value)}
-        />
-        <Label labelFor="gb-app-input">GrowthBook App Origin</Label>
-        <Textfield
-          id="gb-app-input"
-          value={gbApp}
-          isDisabled={isCloud}
-          onChange={(e) => setGbApp(e.target.value)}
-        />
-      </Box>
-      <Box>
-        <Inline>
-          <Label labelFor="gb-api-key-input">Personal Access Token</Label>
+          <Label labelFor="gb-api-key-input">API Key</Label>
         </Inline>
         <Textfield
           autoFocus
@@ -99,8 +43,11 @@ const App = () => {
         <HelperMessage>
           <Inline>
             <Text>
-              You can generate an access token at{" "}
-              {getGbLink("/account/personal-access-tokens")}
+              You can generate an API key at{" "}
+              <GrowthBookLink path="/settings/keys">
+                /settings/keys
+              </GrowthBookLink>
+              . It's recommended to use the <Lozenge>readonly</Lozenge> role
             </Text>
           </Inline>
         </HelperMessage>

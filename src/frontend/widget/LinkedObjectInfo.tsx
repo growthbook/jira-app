@@ -1,16 +1,16 @@
-import { Box, ErrorMessage, Inline, Text } from "@forge/react";
-import React, { ReactNode } from "react";
+import { ErrorMessage } from "@forge/react";
+import React from "react";
 import {
   ExperimentResponse,
   FeatureResponse,
   LinkedObject,
   LinkedObjectResponse,
 } from "src/utils/types";
-import GrowthBookLink from "./GrowthBookLink";
 import useApi from "../hooks/useApi";
 import LoadingSpinner from "./LoadingSpinner";
 import ExperimentDisplay from "./ExperimentDisplay";
 import FeatureDisplay from "./FeatureDisplay";
+import MissingObject from "./MissingObject";
 
 export default function LinkedObjectInfo({
   linkedObject,
@@ -28,27 +28,18 @@ export default function LinkedObjectInfo({
 
   if (apiLoading) return <LoadingSpinner />;
   if (apiError) return <ErrorMessage>{apiError.message}</ErrorMessage>;
-  let itemDisplay: ReactNode = null;
-  switch (type) {
-    case "feature":
-      itemDisplay = (
-        <FeatureDisplay feature={(apiData as FeatureResponse).feature} />
-      );
-      break;
-    case "experiment":
-      itemDisplay = (
-        <ExperimentDisplay
-          experiment={(apiData as ExperimentResponse).experiment}
-        />
-      );
-      break;
+
+  if (type === "feature") {
+    const feature = (apiData as FeatureResponse).feature;
+    if (!feature) return <MissingObject objectType="feature" />;
+    return <FeatureDisplay feature={feature} />;
   }
-  return (
-    <Box>
-      <Inline>
-        <GrowthBookLink path={objectPath}>{id}</GrowthBookLink>
-      </Inline>
-      <Box>{itemDisplay}</Box>
-    </Box>
-  );
+
+  if (type === "experiment") {
+    const experiment = (apiData as ExperimentResponse).experiment;
+    if (!experiment) return <MissingObject objectType="experiment" />;
+    return <ExperimentDisplay experiment={experiment} />;
+  }
+
+  return <MissingObject objectType={type} />;
 }

@@ -26,9 +26,8 @@ resolver.define("getIssueData", async (req) => {
 });
 
 resolver.define("setIssueData", async (req) => {
-  return setIssueData(req.payload.issueId, {
-    linkedObject: req.payload.linkedObject,
-  });
+  const { issueId, issueData } = req.payload;
+  return setIssueData(issueId, issueData);
 });
 
 export const handler = resolver.getDefinitions();

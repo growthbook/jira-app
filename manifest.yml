@@ -15,13 +15,6 @@ modules:
       resolver:
         function: resolver
       useAsConfig: true
-    - key: growthbook-get-started-page
-      resource: main-get-started-page
-      title: Get started with GrowthBook for Jira
-      render: native
-      resolver:
-        function: resolver
-      useAsGetStarted: true
   function:
     - key: resolver
       handler: index.handler
@@ -30,8 +23,6 @@ resources:
     path: src/frontend/widget/index.tsx
   - key: main-configure-page
     path: src/frontend/configure/index.tsx
-  - key: main-get-started-page
-    path: src/frontend/get-started/index.tsx
 app:
   runtime:
     name: nodejs20.x
@@ -39,3 +30,8 @@ app:
 permissions:
   scopes:
     - storage:app
+  external:
+    fetch:
+      client:
+        - "https://app.growthbook.io"
+        - "https://api.growthbook.io"

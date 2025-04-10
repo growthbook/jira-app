@@ -1,8 +1,6 @@
 export interface StoredAppSettings {
   apiKey: string;
-  isCloud: boolean;
-  gbHost: string;
-  gbApp: string;
+  persistedState: Record<string, any>;
 }
 
 export function isStoredAppSettings(
@@ -11,9 +9,11 @@ export function isStoredAppSettings(
   if (typeof value !== "object" || value === null) return false;
   const typecast = value as StoredAppSettings;
   if (typeof typecast.apiKey !== "string") return false;
-  if (typeof typecast.isCloud !== "boolean") return false;
-  if (typeof typecast.gbHost !== "string") return false;
-  if (typeof typecast.gbApp !== "string") return false;
+  if (
+    typeof typecast.persistedState !== "object" ||
+    typecast.persistedState === null
+  )
+    return false;
 
   return true;
 }
@@ -44,8 +44,9 @@ interface SavedGroupTargeting {
   savedGroups: string[];
 }
 
-interface FeatureForceRule {
+export interface FeatureForceRule {
   type: "force";
+  id: string;
   description: string;
   condition: string;
   enabled: boolean;
@@ -53,8 +54,9 @@ interface FeatureForceRule {
   savedGroupTargeting?: SavedGroupTargeting[];
 }
 
-interface FeatureRolloutRule {
+export interface FeatureRolloutRule {
   type: "rollout";
+  id: string;
   description: string;
   condition: string;
   enabled: boolean;
@@ -63,8 +65,9 @@ interface FeatureRolloutRule {
   hashAttribute: string;
 }
 
-interface FeatureExperimentRule {
+export interface FeatureExperimentRule {
   type: "experiment";
+  id: string;
   description: string;
   condition: string;
   enabled: boolean;
@@ -75,21 +78,22 @@ interface FeatureExperimentRule {
   value?: Array<{ value: string; weight: number; name?: string }>;
 }
 
-interface FeatureExperimentRefRule {
+export interface FeatureExperimentRefRule {
   type: "experiment-ref";
+  id: string;
   description: string;
   enabled: boolean;
   variations: Array<{ value: string; variationId: string }>;
   experimentId: string;
 }
 
-type FeatureRule =
+export type FeatureRule =
   | FeatureForceRule
   | FeatureRolloutRule
   | FeatureExperimentRule
   | FeatureExperimentRefRule;
 
-interface FeatureEnvironment {
+export interface FeatureEnvironment {
   enabled: boolean;
   defaultValue: string;
   rules: FeatureRule[];

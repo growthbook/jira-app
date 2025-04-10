@@ -7,7 +7,6 @@ import LinkedObjectInfo from "./LinkedObjectInfo";
 
 export default function IssuePanel() {
   const {
-    issueId,
     issueData,
     loading: issueDataLoading,
     error: issueDataError,

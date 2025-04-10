@@ -29,11 +29,8 @@ const App = () => {
 
   if (settingsLoading || contextLoading) return <LoadingSpinner />;
 
-  console.log("Got local id", localId);
-
   const [APP_ID, ENV_ID] = (localId || "").split("/").slice(1, 3);
   const configureLink = `${siteUrl}/jira/settings/apps/configure/${APP_ID}/${ENV_ID}`;
-
   if (settingsError)
     return (
       <ErrorMessage>

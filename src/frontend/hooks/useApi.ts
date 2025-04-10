@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 import useSWR, { SWRConfiguration } from "swr";
 import { useAppSettingsContext } from "./useAppSettingsContext";
+import { GB_API_HOST } from "../../utils/consts";
 
 export async function apiCall(
-  gbHost: string | null,
   apiKey: string | null,
   url: string | null,
   options: Omit<RequestInit, "headers"> = {}
 ) {
-  if (!gbHost || !apiKey || typeof url !== "string") return;
+  if (!apiKey || typeof url !== "string") return;
   const init: RequestInit = { ...options };
   init.headers = {};
   init.headers["Authorization"] = `Bearer ${apiKey}`;
@@ -16,7 +16,8 @@ export async function apiCall(
   if (init.body && !init.headers["Content-Type"]) {
     init.headers["Content-Type"] = "application/json";
   }
-  const response = await fetch(gbHost + url, init);
+  const fetchUrl = new URL(url, GB_API_HOST);
+  const response = await fetch(fetchUrl, init);
   const responseData = await response.json();
 
   if (responseData.status && responseData.status >= 400) {
@@ -35,17 +36,17 @@ export default function useApi<Response = unknown>(
   path: string | null,
   useSwrSettings?: SWRConfiguration
 ) {
-  const { gbHost, apiKey, loading } = useAppSettingsContext();
+  const { apiKey, loading } = useAppSettingsContext();
   const curriedApiCall: CurriedApiCallType<Response> = useCallback(
     async (url: string | null, options: Omit<RequestInit, "headers"> = {}) => {
-      if (loading || !url || !apiKey || !gbHost) return;
-      return await apiCall(gbHost, apiKey, url, options);
+      if (loading || !url || !apiKey) return;
+      return await apiCall(apiKey, url, options);
     },
-    [gbHost, apiKey, loading]
+    [apiKey, loading]
   );
 
   return useSWR<Response, Error>(
-    path && gbHost && apiKey ? `${path}_${gbHost}_${apiKey}` : null,
+    path && apiKey ? `${path}_${apiKey}` : null,
     async () => curriedApiCall(path, { method: "GET" }),
     {
       revalidateOnMount: true,

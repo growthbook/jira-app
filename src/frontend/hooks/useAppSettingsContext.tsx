@@ -15,13 +15,9 @@ interface AppSettings {
   error: string | undefined;
   apiKey: string;
   setApiKey: (value: string) => void;
-  isCloud: boolean;
-  setIsCloud: (value: boolean) => void;
-  gbHost: string;
-  setGbHost: (value: string) => void;
-  gbApp: string;
-  setGbApp: (value: string) => void;
   saving: boolean;
+  persistedState: Record<string, any>;
+  updatePersistedState: (key: string, value: any) => void;
 }
 
 const AppSettingsContext = createContext<AppSettings | null>(null);
@@ -32,13 +28,10 @@ export const AppSettingsContextProvider = ({
   children: ReactNode;
 }) => {
   const [apiKey, setApiKey] = useState("");
-  const [isCloud, setIsCloud] = useState(true);
-  const [gbHost, setGbHost] = useState("");
-  const [gbApp, setGbApp] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
-
+  const [persistedState, setPersistedState] = useState({});
   useEffect(() => {
     setLoading(true);
     invoke("getAppSettings", {})
@@ -53,10 +46,8 @@ export const AppSettingsContextProvider = ({
           return;
         }
         setApiKey(settings.apiKey);
-        setIsCloud(settings.isCloud);
-        setGbHost(settings.gbHost);
-        setGbApp(settings.gbApp);
         setError(undefined);
+        setPersistedState(settings.persistedState);
         setLoading(false);
       })
       .catch((e) => console.error(e));
@@ -65,15 +56,16 @@ export const AppSettingsContextProvider = ({
   const pushUpdates = useMemo(
     () =>
       debounce(
-        (apiKey, isCloud, gbHost, gbApp) => {
+        (apiKey, persistedState) => {
           setSaving(true);
           setError(undefined);
-          invoke("updateAppSettings", { apiKey, isCloud, gbHost, gbApp }).then(
-            (result) => {
-              if (result !== true) setError("Failed to save settings");
-              setSaving(false);
-            }
-          );
+          invoke("updateAppSettings", {
+            apiKey,
+            persistedState,
+          }).then((result) => {
+            if (result !== true) setError("Failed to save settings");
+            setSaving(false);
+          });
         },
         1000,
         { immediate: false }
@@ -83,8 +75,12 @@ export const AppSettingsContextProvider = ({
 
   useEffect(() => {
     if (loading) return;
-    pushUpdates(apiKey, isCloud, gbHost, gbApp);
-  }, [apiKey, isCloud, gbHost, gbApp]);
+    pushUpdates(apiKey, persistedState);
+  }, [apiKey, persistedState]);
+
+  const updatePersistedState = (key: string, value: any) => {
+    setPersistedState({ ...persistedState, [key]: value });
+  };
 
   return (
     <AppSettingsContext.Provider
@@ -93,13 +89,9 @@ export const AppSettingsContextProvider = ({
         error,
         apiKey,
         setApiKey,
-        isCloud,
-        setIsCloud,
-        gbHost,
-        setGbHost,
-        gbApp,
-        setGbApp,
         saving,
+        persistedState,
+        updatePersistedState,
       }}
     >
       {children}
