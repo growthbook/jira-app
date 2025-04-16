@@ -3,22 +3,19 @@ import LoadingSpinner from "./LoadingSpinner";
 import { Box, ErrorMessage, Select } from "@forge/react";
 import useApi from "../hooks/useApi";
 import { useIssueContext } from "../hooks/useIssueContext";
-import { Experiment, Feature } from "../../utils/types";
 
 export default function UnlinkedIssue() {
   const {
     isLoading: featuresLoading,
     error: featuresError,
-    data: featuresData,
-  } = useApi<{ features: Feature[] }>("/api/v1/features", {}, "features");
+    data: featureKeys,
+  } = useApi<string[]>("/api/v1/feature-keys");
   const {
     isLoading: experimentsLoading,
     error: experimentsError,
     data: experimentsData,
-  } = useApi<{ experiments: Experiment[] }>(
-    "/api/v1/experiments",
-    {},
-    "experiments"
+  } = useApi<{ experiments: Array<{ id: string; name: string }> }>(
+    "/api/v1/experiment-names"
   );
 
   const {
@@ -38,7 +35,7 @@ export default function UnlinkedIssue() {
       />
     );
 
-  if (!featuresData || !experimentsData) {
+  if (!featureKeys || !experimentsData) {
     return (
       <ErrorMessage>
         Failed to load your features from GrowthBook. Please try again later.
@@ -50,24 +47,16 @@ export default function UnlinkedIssue() {
   if (experimentsError)
     return <ErrorMessage>{experimentsError.message}</ErrorMessage>;
 
-  const featureLabelMap = Object.fromEntries(
-    featuresData.features.filter((f) => !f.archived).map((f) => [f.id, f.id])
-  );
-  const experimentLabelMap = Object.fromEntries(
-    experimentsData.experiments
-      .filter((e) => !e.archived)
-      .map((e) => [e.id, e.name])
-  );
-  const featOptions = Object.entries(featureLabelMap).map(([value, label]) => ({
-    label,
-    value,
+  const featOptions = featureKeys.map((key) => ({
+    label: key,
+    value: key,
   }));
-  const expOptions = Object.entries(experimentLabelMap).map(
-    ([value, label]) => ({
-      label,
-      value,
-    })
-  );
+  const expOptions = experimentsData.experiments.map((e) => ({
+    label: e.name,
+    value: e.id,
+  }));
+
+  const featureKeySet = new Set(featureKeys);
 
   return (
     <Box>
@@ -78,7 +67,7 @@ export default function UnlinkedIssue() {
           { options: expOptions, label: "Experiments" },
         ]}
         onChange={(selectedOption) => {
-          const type = featureLabelMap[selectedOption.value]
+          const type = featureKeySet.has(selectedOption.value)
             ? "feature"
             : "experiment";
           setIssueData({

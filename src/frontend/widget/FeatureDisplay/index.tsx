@@ -1,105 +1,125 @@
 import {
   Box,
   Button,
+  ErrorMessage,
   Inline,
-  Lozenge,
-  Select,
+  Stack,
   Text,
   Tooltip,
 } from "@forge/react";
 import React from "react";
 import type {
-  Feature,
-  FeatureEnvironment,
-  FeatureRevision,
+  Experiment,
+  FeatureExperimentRefRule,
+  FeatureResponse,
 } from "src/utils/types";
 import GrowthBookLink from "../GrowthBookLink";
-import usePersistedState from "../../hooks/usePersistedState";
 import { useIssueContext } from "../../hooks/useIssueContext";
 import { formatDate } from "../../../utils";
+import useApi from "../../hooks/useApi";
+import LoadingSpinner from "../LoadingSpinner";
+import MissingObject from "../MissingObject";
+import FeatureStatusLozenge from "./FeatureStatusLozenge";
+import AssociatedExperiment from "./AssociatedExperiment";
 
-function RevisionDisplay({
-  revision: { version, comment: _comment, date, publishedBy },
-}: {
-  revision: FeatureRevision;
-}) {
-  return (
-    <Tooltip content={`Published ${formatDate(date)} by ${publishedBy}`}>
-      Published revision: <Lozenge>rev {version}</Lozenge>
-    </Tooltip>
-  );
-}
-
-function EnvironmentDisplay({
-  featureEnv,
-}: {
-  featureEnv: FeatureEnvironment;
-}) {
-  const activeRules = featureEnv.rules.filter((rule) => rule.enabled);
-  const experimentRules = featureEnv.rules.filter((rule) =>
-    ["experiment", "experiment-ref"].includes(rule.type)
-  );
-  return (
-    <Box>
-      <Text>
-        {featureEnv.enabled ? "Enabled" : "Disabled"} with {activeRules.length}{" "}
-        rule{activeRules.length !== 1 && "s"}
-        {experimentRules.length > 0 &&
-          ` including ${experimentRules.length} experiment rule${
-            experimentRules.length > 1 ? "s" : ""
-          }`}
-        .
-      </Text>
-    </Box>
-  );
-}
-
-export default function FeatureDisplay({ feature }: { feature: Feature }) {
-  const [selectedEnv, setSelectedEnv] = usePersistedState<
-    { label: string; value: string } | undefined
-  >("selectedEnv", undefined);
+export default function FeatureDisplay({ featureId }: { featureId: string }) {
   const { setIssueData } = useIssueContext();
 
+  const {
+    isLoading: featureApiLoading,
+    error: featureApiError,
+    data: featureData,
+  } = useApi<FeatureResponse>(
+    `/api/v1/features/${featureId}?withRevisions=drafts`
+  );
+
+  const feature = featureData?.feature;
+
+  let associatedExperiment: string | undefined;
+  if (feature) {
+    // Find the first experiment rule across all environments
+    const expRule = Object.values(feature.environments)
+      .map((featureEnv) =>
+        featureEnv.rules.find((rule) => rule.type === "experiment-ref")
+      )
+      .find((ruleOrUndef) => ruleOrUndef);
+    // Forge linting fails to infer this typing automatically. No actual casting is happening here
+    associatedExperiment = (expRule as FeatureExperimentRefRule | undefined)
+      ?.experimentId;
+  }
+
+  const {
+    data: experimentData,
+    isLoading: experimentApiLoading,
+    error: experimentApiError,
+  } = useApi<{ experiment: Experiment }>(
+    associatedExperiment ? `/api/v1/experiments/${associatedExperiment}` : null
+  );
+
+  if (featureApiLoading)
+    return <LoadingSpinner text="Fetching your feature..." />;
+  if (featureApiError)
+    return <ErrorMessage>{featureApiError.message}</ErrorMessage>;
+  if (!feature) return <MissingObject objectType="feature" />;
+  if (experimentApiLoading) {
+    return <LoadingSpinner text="Loading associated experiment status..." />;
+  }
+  if (experimentApiError) {
+    return <ErrorMessage>{experimentApiError.message}</ErrorMessage>;
+  }
+
+  const draft = (feature.revisions || []).find((rev) => rev.status === "draft");
+
   return (
-    <Box>
-      <Inline alignBlock="center">
-        <Text>
-          Linked with feature <Lozenge>{feature.id}</Lozenge>
-        </Text>
+    <Stack alignBlock="start" alignInline="start" space="space.050">
+      <Inline grow="fill" alignBlock="center" spread="space-between">
+        <Inline alignBlock="center" space="space.150">
+          <Tooltip content="View feature in GrowthBook">
+            <GrowthBookLink path={`/features/${feature.id}`}>
+              <Text weight="semibold" size="large">
+                {feature.id}
+              </Text>
+            </GrowthBookLink>
+          </Tooltip>
+          <FeatureStatusLozenge
+            tooltipContent={
+              draft ? `Draft Created ${formatDate(draft.date)}` : ""
+            }
+            feature={feature}
+          />
+        </Inline>
+
         <Button
-          iconBefore="unlink"
           appearance="subtle"
           onClick={() => setIssueData({})}
           spacing="compact"
         >
-          unlink
+          <Text
+            weight="semibold"
+            color="color.link"
+            size="small"
+            align="center"
+          >
+            Replace Linked Feature
+          </Text>
         </Button>
       </Inline>
-
-      <Inline alignBlock="center" space="space.100">
-        <RevisionDisplay revision={feature.revision} />
-        <Box xcss={{ width: "200px" }}>
-          <Select
-            options={Object.keys(feature.environments).map((env) => ({
-              label: env,
-              value: env,
-            }))}
-            value={selectedEnv}
-            onChange={setSelectedEnv}
-            spacing="compact"
-          />
-        </Box>
+      <Inline>
+        <Text>
+          Last Published {formatDate(feature.revision.date)} by{" "}
+          {feature.revision.publishedBy}
+        </Text>
       </Inline>
-      <Box>
-        {selectedEnv && (
-          <EnvironmentDisplay
-            featureEnv={feature.environments[selectedEnv.value]}
-          />
-        )}
-      </Box>
-      <GrowthBookLink path={`/features/${feature.id}`}>
-        Manage in GrowthBook
-      </GrowthBookLink>
-    </Box>
+      {/* <GrowthBookLink path={`/features/${feature.id}#test`} hideIcon>
+        <Text size="small" weight="semibold">
+          Preview as Archetype
+        </Text>
+      </GrowthBookLink> */}
+      {experimentData?.experiment && (
+        <Box paddingBlockStart="space.100">
+          <AssociatedExperiment experiment={experimentData.experiment} />
+        </Box>
+      )}
+    </Stack>
   );
 }

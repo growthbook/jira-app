@@ -1,79 +1,150 @@
-import { Box, Button, Inline, Lozenge, Text, Tooltip } from "@forge/react";
+import {
+  Box,
+  Button,
+  ErrorMessage,
+  Inline,
+  Lozenge,
+  Stack,
+  Text,
+  Tooltip,
+} from "@forge/react";
 import React from "react";
-import type { Experiment } from "src/utils/types";
+import type { Experiment, ExperimentResponse, Feature } from "src/utils/types";
 import GrowthBookLink from "../GrowthBookLink";
 import { useIssueContext } from "../../hooks/useIssueContext";
-import { formatDate } from "../../../utils";
+import { formatDate, getWinningVariant } from "../../../utils";
+import useApi from "../../hooks/useApi";
+import LoadingSpinner from "../LoadingSpinner";
+import MissingObject from "../MissingObject";
+import ExperimentStatusLozenge from "./ExperimentStatusLozenge";
+import AssociatedFeature from "./AssociatedFeature";
 
-function ExperimentResultSummary({ experiment }: { experiment: Experiment }) {
-  if (!experiment.resultSummary) return null;
-  const winningVariant = experiment.variations.find(
-    (variation) => variation.variationId === experiment.resultSummary!.winner
-  );
-  return (
-    <Inline alignBlock="center" space="space.050">
-      <Text>Result:</Text>
-      <Tooltip
-        content={
-          winningVariant ? `Winning variant: ${winningVariant.name}` : ""
-        }
-      >
-        <Lozenge>{experiment.resultSummary.status}</Lozenge>
-      </Tooltip>
-    </Inline>
-  );
+export function ExperimentDates({ experiment }: { experiment: Experiment }) {
+  const lastPhase = experiment.phases[experiment.phases.length - 1];
+  if (experiment.status === "draft")
+    return (
+      <Stack>
+        <Inline>
+          <Text>Last updated {formatDate(experiment.dateUpdated)}</Text>
+        </Inline>
+      </Stack>
+    );
+  if (experiment.status === "running")
+    return (
+      <Stack>
+        <Inline>
+          <Text>Phase started {formatDate(lastPhase.dateStarted)}</Text>
+        </Inline>
+      </Stack>
+    );
+  if (experiment.status === "stopped")
+    return (
+      <Stack>
+        <Inline>
+          <Text>Phase started {formatDate(lastPhase.dateStarted)}</Text>
+        </Inline>
+        <Inline>
+          <Text>Phase ended {formatDate(lastPhase.dateEnded)}</Text>
+        </Inline>
+      </Stack>
+    );
+  return <></>;
 }
 
 export default function ExperimentDisplay({
-  experiment,
+  experimentId,
 }: {
-  experiment: Experiment;
+  experimentId: string;
 }) {
   const { setIssueData } = useIssueContext();
-  const lastPhase = experiment.phases[experiment.phases.length - 1];
+  const {
+    isLoading: experimentApiLoading,
+    error: experimentApiError,
+    data: experimentData,
+  } = useApi<ExperimentResponse>(
+    `/api/v1/experiments/${experimentId}?withRevisions=drafts`
+  );
+  const experiment = experimentData?.experiment;
+
+  let associatedFeature: string | undefined;
+  if (experiment) {
+    associatedFeature = experiment?.linkedFeatures?.[0];
+  }
+  const {
+    data: featureData,
+    isLoading: featureApiLoading,
+    error: featureApiError,
+  } = useApi<{ feature: Feature }>(
+    associatedFeature
+      ? `/api/v1/features/${associatedFeature}?withRevisions=drafts`
+      : null
+  );
+
+  if (experimentApiLoading)
+    return <LoadingSpinner text="Fetching your experiment..." />;
+  if (experimentApiError)
+    return <ErrorMessage>{experimentApiError.message}</ErrorMessage>;
+  if (!experiment) return <MissingObject objectType="experiment" />;
+  if (featureApiLoading) {
+    return <LoadingSpinner text="Loading associated feature status..." />;
+  }
+  if (featureApiError) {
+    return <ErrorMessage>{featureApiError.message}</ErrorMessage>;
+  }
+
+  const expType = experiment.hasURLRedirects
+    ? "URL Redirect"
+    : experiment.hasVisualChangesets
+    ? "Visual Editor"
+    : associatedFeature
+    ? "Feature Flag"
+    : "Awaiting Implementation";
+
+  const winningVariant = getWinningVariant(experiment);
 
   return (
-    <Box>
-      <Inline alignBlock="center">
-        <Text>
-          Linked with experiment <Lozenge>{experiment.name}</Lozenge>
-        </Text>
+    <Stack alignBlock="start" alignInline="start" space="space.050">
+      <Inline grow="fill" alignBlock="center" spread="space-between">
+        <Inline alignBlock="center" space="space.150">
+          <Tooltip content="View experiment in GrowthBook">
+            <GrowthBookLink path={`/experiment/${experiment.id}`}>
+              <Text weight="semibold" size="large">
+                {experiment.name}
+              </Text>
+            </GrowthBookLink>
+          </Tooltip>
+          <ExperimentStatusLozenge
+            experiment={experiment}
+            tooltipContent={
+              winningVariant ? `Winning variant: ${winningVariant}` : ""
+            }
+          />
+        </Inline>
+
         <Button
-          iconBefore="unlink"
           appearance="subtle"
           onClick={() => setIssueData({})}
           spacing="compact"
         >
-          unlink
+          <Text
+            weight="semibold"
+            color="color.link"
+            size="small"
+            align="center"
+          >
+            Replace Linked Experiment
+          </Text>
         </Button>
       </Inline>
-      <Inline alignBlock="center" space="space.100">
-        <Text>Status:</Text>
-        <Tooltip
-          content={
-            lastPhase
-              ? `Phase started: ${formatDate(lastPhase.dateStarted)}${
-                  lastPhase.dateEnded
-                    ? // TODO: find a way to get this to split to a newline every time
-                      ` Phase ended: ${formatDate(lastPhase.dateEnded)}`
-                    : ""
-                }`
-              : ""
-          }
-        >
-          <Lozenge>{experiment.status}</Lozenge>
-        </Tooltip>
+      <ExperimentDates experiment={experiment} />
+      <Inline grow="fill" space="space.050" alignBlock="center">
+        Type: <Text weight="semibold">{expType}</Text>
       </Inline>
-      <ExperimentResultSummary experiment={experiment} />
-      <Inline alignBlock="center" space="space.050">
-        <Text>
-          {experiment.variations.length} variation
-          {experiment.variations.length === 1 ? "" : "s"}
-        </Text>
-      </Inline>
-      <GrowthBookLink path={`/experiment/${experiment.id}`}>
-        Manage in GrowthBook
-      </GrowthBookLink>
-    </Box>
+      {featureData?.feature && (
+        <Box paddingBlockStart="space.100">
+          <AssociatedFeature feature={featureData.feature} />
+        </Box>
+      )}
+    </Stack>
   );
 }

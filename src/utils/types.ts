@@ -109,8 +109,8 @@ export interface Feature {
   id: string;
   archived: boolean;
   description: string;
-  dateCreated: boolean;
-  dateUpdated: boolean;
+  dateCreated: string;
+  dateUpdated: string;
   owner: string;
   project: string;
   tags: string[];
@@ -118,6 +118,15 @@ export interface Feature {
   revision: FeatureRevision;
   valueType: ValueType;
   defaultValue: string;
+  revisions?: Array<{
+    baseVersion: number;
+    version: number;
+    comment: string;
+    date: string;
+    status: string;
+    publishedBy?: string;
+    rules: FeatureRule[];
+  }>;
 }
 
 export interface FeatureResponse {
@@ -137,6 +146,8 @@ interface ExperimentPhase {
 
 export interface Experiment {
   id: string;
+  dateCreated: string;
+  dateUpdated: string;
   archived: boolean;
   trackingKey: string;
   name: string;
@@ -158,12 +169,13 @@ export interface Experiment {
     releasedVariationId: string;
     excludeFromPayload: boolean;
   };
+  linkedFeatures?: string[];
+  hasVisualChangesets?: boolean;
+  hasURLRedirects?: boolean;
 }
 export interface ExperimentResponse {
   experiment: Experiment;
 }
-
-export type LinkedObjectResponse = FeatureResponse | ExperimentResponse;
 
 export interface IssueData {
   linkedObject?: LinkedObject;

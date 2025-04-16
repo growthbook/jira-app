@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Icon } from "@forge/react";
+import { Link, Icon, Inline } from "@forge/react";
 import { ForgeNode } from "@forge/react/out/types";
 import { GB_APP_ORIGIN } from "../../utils/consts";
 
@@ -16,10 +16,12 @@ export default function GrowthBookLink({
 }: LinkProps) {
   return (
     <Link openNewTab href={new URL(path || "", GB_APP_ORIGIN).toString()}>
-      {children}
-      {!hideIcon && (
-        <Icon size="small" label="link to growthbook" glyph="shortcut" />
-      )}
+      <Inline alignBlock="center" space="space.025">
+        {children}
+        {!hideIcon && (
+          <Icon size="small" label="link to growthbook" glyph="shortcut" />
+        )}
+      </Inline>
     </Link>
   );
 }
