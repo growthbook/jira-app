@@ -11,6 +11,7 @@ export default function ExperimentStatusLozenge({
   tooltipContent?: string;
 }) {
   let appearance: ThemeAppearance = "default";
+  let baseStatus = experiment.status;
   let additionalInfo = "";
   switch (experiment.status) {
     case "draft":
@@ -18,7 +19,10 @@ export default function ExperimentStatusLozenge({
       break;
     case "running":
       appearance = "inprogress";
-      // TODO: pull run length from api
+      if (experiment.enhancedStatus?.detailedStatus) {
+        baseStatus = experiment.enhancedStatus.status;
+        additionalInfo = experiment.enhancedStatus.detailedStatus;
+      }
       break;
     case "stopped":
       if (experiment.resultSummary) {
@@ -29,8 +33,8 @@ export default function ExperimentStatusLozenge({
       }
       break;
   }
-  let lozengeText = experiment.status;
-  if (additionalInfo) lozengeText += `: ${additionalInfo}`;
+  const lozengeText =
+    baseStatus + (additionalInfo ? `: ${additionalInfo}` : "");
   if (tooltipContent) {
     return (
       <Tooltip content={tooltipContent}>

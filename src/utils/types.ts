@@ -172,6 +172,10 @@ export interface Experiment {
   linkedFeatures?: string[];
   hasVisualChangesets?: boolean;
   hasURLRedirects?: boolean;
+  enhancedStatus?: {
+    status: string;
+    detailedStatus?: string;
+  };
 }
 export interface ExperimentResponse {
   experiment: Experiment;
