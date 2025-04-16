@@ -76,7 +76,7 @@ export default function FeatureDisplay({ featureId }: { featureId: string }) {
         <Inline alignBlock="center" space="space.150">
           <Tooltip content="View feature in GrowthBook">
             <GrowthBookLink path={`/features/${feature.id}`}>
-              <Text weight="semibold" size="large">
+              <Text weight="medium" size="large">
                 {feature.id}
               </Text>
             </GrowthBookLink>
@@ -94,12 +94,7 @@ export default function FeatureDisplay({ featureId }: { featureId: string }) {
           onClick={() => setIssueData({})}
           spacing="compact"
         >
-          <Text
-            weight="semibold"
-            color="color.link"
-            size="small"
-            align="center"
-          >
+          <Text weight="medium" color="color.link" size="small" align="center">
             Replace Linked Feature
           </Text>
         </Button>
@@ -111,7 +106,7 @@ export default function FeatureDisplay({ featureId }: { featureId: string }) {
         </Text>
       </Inline>
       {/* <GrowthBookLink path={`/features/${feature.id}#test`} hideIcon>
-        <Text size="small" weight="semibold">
+        <Text size="small" weight="medium">
           Preview as Archetype
         </Text>
       </GrowthBookLink> */}

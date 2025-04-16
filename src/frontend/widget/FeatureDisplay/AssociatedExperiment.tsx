@@ -28,7 +28,7 @@ export default function AssociatedExperiment({
         <Text>Associated Experiment:</Text>
         <Tooltip content="View experiment in GrowthBook">
           <GrowthBookLink path={`/experiment/${experiment.id}`}>
-            <Text weight="semibold">{experiment.name}</Text>
+            <Text weight="medium">{experiment.name}</Text>
           </GrowthBookLink>
         </Tooltip>
       </Inline>

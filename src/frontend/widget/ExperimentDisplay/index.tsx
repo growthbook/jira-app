@@ -108,7 +108,7 @@ export default function ExperimentDisplay({
         <Inline alignBlock="center" space="space.150">
           <Tooltip content="View experiment in GrowthBook">
             <GrowthBookLink path={`/experiment/${experiment.id}`}>
-              <Text weight="semibold" size="large">
+              <Text weight="medium" size="large">
                 {experiment.name}
               </Text>
             </GrowthBookLink>
@@ -126,19 +126,14 @@ export default function ExperimentDisplay({
           onClick={() => setIssueData({})}
           spacing="compact"
         >
-          <Text
-            weight="semibold"
-            color="color.link"
-            size="small"
-            align="center"
-          >
+          <Text weight="medium" color="color.link" size="small" align="center">
             Replace Linked Experiment
           </Text>
         </Button>
       </Inline>
       <ExperimentDates experiment={experiment} />
       <Inline grow="fill" space="space.050" alignBlock="center">
-        Type: <Text weight="semibold">{expType}</Text>
+        Type: <Text weight="medium">{expType}</Text>
       </Inline>
       {featureData?.feature && (
         <Box paddingBlockStart="space.100">

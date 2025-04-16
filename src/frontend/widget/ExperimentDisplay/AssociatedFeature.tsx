@@ -12,7 +12,7 @@ export default function AssociatedFeature({ feature }: { feature: Feature }) {
         <Text>Associated Feature:</Text>
         <Tooltip content="View feature in GrowthBook">
           <GrowthBookLink path={`/features/${feature.id}`}>
-            <Text weight="semibold">{feature.id}</Text>
+            <Text weight="medium">{feature.id}</Text>
           </GrowthBookLink>
         </Tooltip>
       </Inline>
