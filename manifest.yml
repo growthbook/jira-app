@@ -6,7 +6,7 @@ modules:
         function: resolver
       render: native
       title: GrowthBook for Jira
-      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+      icon: resource:public;logo128.png
   jira:adminPage:
     - key: growthbook-configure-page
       resource: main-configure-page
@@ -23,6 +23,8 @@ resources:
     path: src/frontend/widget/index.tsx
   - key: main-configure-page
     path: src/frontend/configure/index.tsx
+  - key: public
+    path: public
 app:
   runtime:
     name: nodejs20.x

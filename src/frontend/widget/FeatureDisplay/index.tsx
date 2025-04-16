@@ -72,8 +72,13 @@ export default function FeatureDisplay({ featureId }: { featureId: string }) {
 
   return (
     <Stack alignBlock="start" alignInline="start" space="space.050">
-      <Inline grow="fill" alignBlock="center" spread="space-between">
-        <Inline alignBlock="center" space="space.150">
+      <Inline grow="fill" alignBlock="start" spread="space-between">
+        <Inline
+          shouldWrap
+          alignBlock="center"
+          space="space.150"
+          rowSpace="space.0"
+        >
           <Tooltip content="View feature in GrowthBook">
             <GrowthBookLink path={`/features/${feature.id}`}>
               <Text weight="medium" size="large">

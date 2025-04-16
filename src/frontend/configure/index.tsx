@@ -41,13 +41,14 @@ const App = () => {
           onChange={(e) => setApiKey(e.target.value)}
         />
         <HelperMessage>
-          <Inline>
-            <Text>
-              You can generate an API key at{" "}
-              <GrowthBookLink path="/settings/keys">
-                /settings/keys
-              </GrowthBookLink>
-              . It's recommended to use the <Lozenge>readonly</Lozenge> role
+          <Inline alignBlock="center" space="space.050">
+            <Text as="span">You can generate an API key at</Text>{" "}
+            <GrowthBookLink path="/settings/keys">
+              /settings/keys
+            </GrowthBookLink>
+            .
+            <Text as="span">
+              It's recommended to use the <Lozenge>readonly</Lozenge> role
             </Text>
           </Inline>
         </HelperMessage>

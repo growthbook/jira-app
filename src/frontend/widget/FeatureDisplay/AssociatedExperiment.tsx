@@ -23,15 +23,13 @@ export default function AssociatedExperiment({
     : `Phase Started ${formatDate(lastPhase.dateStarted)}`;
 
   return (
-    <Inline alignBlock="center" space="space.100">
-      <Inline alignBlock="center" space="space.050">
-        <Text>Associated Experiment:</Text>
-        <Tooltip content="View experiment in GrowthBook">
-          <GrowthBookLink path={`/experiment/${experiment.id}`}>
-            <Text weight="medium">{experiment.name}</Text>
-          </GrowthBookLink>
-        </Tooltip>
-      </Inline>
+    <Inline shouldWrap alignBlock="center" space="space.050">
+      <Text>Associated Experiment:</Text>
+      <Tooltip content="View experiment in GrowthBook">
+        <GrowthBookLink path={`/experiment/${experiment.id}`}>
+          <Text weight="medium">{experiment.name}</Text>
+        </GrowthBookLink>
+      </Tooltip>
       <ExperimentStatusLozenge
         experiment={experiment}
         tooltipContent={tooltipContent}

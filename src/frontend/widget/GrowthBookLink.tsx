@@ -16,7 +16,7 @@ export default function GrowthBookLink({
 }: LinkProps) {
   return (
     <Link openNewTab href={new URL(path || "", GB_APP_ORIGIN).toString()}>
-      <Inline alignBlock="center" space="space.025">
+      <Inline shouldWrap={false} alignBlock="center" space="space.025">
         {children}
         {!hideIcon && (
           <Icon size="small" label="link to growthbook" glyph="shortcut" />
