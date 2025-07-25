@@ -2,7 +2,7 @@
 
 An Atlassian Forge app for use linking Jira issues to GrowthBook features and experiments.
 
-## Requirements
+## Local Development
 
 See [Set up Forge](https://developer.atlassian.com/platform/forge/set-up-forge/) for instructions to get set up.
 
@@ -16,19 +16,39 @@ See [Set up Forge](https://developer.atlassian.com/platform/forge/set-up-forge/)
 ## Connecting to a self-hosted GrowthBook instance
 
 Forge apps must specify what urls they connect to before they're published, so to use this app with a non-cloud
-instance of GrowthBook you'll need to fork this repo and change the `manifest.yml` like so:
+instance of GrowthBook you'll need to make a fork of this repo and apply a few edits
+
+1. Create a new [Atlassian Forge app](https://developer.atlassian.com/platform/forge/build-a-hello-world-app-in-jira/) locally
+2. Take the app ID from the generated `manifest.yml` and use it to replace our app ID in your fork's `manifest.yml`.
+3. Update the references to `api.growthbook.io` and `app.growthbook.io` to use your corresponding URLs in both `manifest.yml` and `src/utils/consts.ts`.
+4. You should end up with the following diff
 
 ```diff
 diff --git a/manifest.yml b/manifest.yml
-index 9dfac39..bc18c2f 100644
+index eee3f43..5d9ba32 100644
 --- a/manifest.yml
 +++ b/manifest.yml
-@@ -33,4 +33,4 @@ permissions:
+@@ -28,11 +28,11 @@ resources:
+ app:
+   runtime:
+     name: nodejs20.x
+-  id: ari:cloud:ecosystem::app/78d5cfe5-5311-4e0e-9bbd-5be2ae1eb445
++  id: generated-app-id
+ permissions:
+   scopes:
+     - storage:app
    external:
      fetch:
        client:
 -        - "https://api.growthbook.io"
 +        - "https://your-site-here.com"
+diff --git a/src/utils/consts.ts b/src/utils/consts.ts
+index 06e8ffa..73a7234 100644
+--- a/src/utils/consts.ts
++++ b/src/utils/consts.ts
+@@ -1,2 +1,2 @@
+-export const GB_API_HOST = "https://api.growthbook.io";
+-export const GB_APP_ORIGIN = "https://app.growthbook.io";
++export const GB_API_HOST = "https://api.your-site-here.com";
++export const GB_APP_ORIGIN = "https://app.your-site-here.com";
 ```
-
-You'll also need to change the URLs in [/src/utils/consts.ts](src/utils/consts.ts) to point to your site
