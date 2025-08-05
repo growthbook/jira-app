@@ -59,12 +59,12 @@ const App = () => {
 
 ForgeReconciler.render(
   <React.StrictMode>
-    <AppSettingsContextProvider>
-      <JiraContextProvider>
+    <JiraContextProvider>
+      <AppSettingsContextProvider>
         <IssueContextProvider>
           <App />
         </IssueContextProvider>
-      </JiraContextProvider>
-    </AppSettingsContextProvider>
+      </AppSettingsContextProvider>
+    </JiraContextProvider>
   </React.StrictMode>
 );

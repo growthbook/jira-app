@@ -1,6 +1,7 @@
 export interface StoredAppSettings {
   apiKey: string;
   persistedState: Record<string, any>;
+  customFieldId?: string;
 }
 
 export function isStoredAppSettings(
@@ -21,11 +22,13 @@ export function isStoredAppSettings(
 interface LinkedFeature {
   type: "feature";
   id: string;
+  name?: string;
 }
 
 interface LinkedExperiment {
   type: "experiment";
   id: string;
+  name?: string;
 }
 
 export type LinkedObject = LinkedFeature | LinkedExperiment;

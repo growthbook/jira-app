@@ -5,6 +5,7 @@ const APP_SETTINGS_KEY = "GB_APP_SETTINGS";
 const APP_SETTINGS_DEFAULTS: StoredAppSettings = {
   apiKey: "",
   persistedState: {},
+  customFieldId: "",
 };
 
 export async function getAppSettings() {
