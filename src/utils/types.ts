@@ -15,6 +15,11 @@ export function isStoredAppSettings(
     typecast.persistedState === null
   )
     return false;
+  if (
+    typecast.customFieldId !== undefined &&
+    typeof typecast.customFieldId !== "string"
+  )
+    return false;
 
   return true;
 }
