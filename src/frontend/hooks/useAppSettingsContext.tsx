@@ -36,6 +36,7 @@ export const AppSettingsContextProvider = ({
   const [saving, setSaving] = useState(false);
   const [persistedState, setPersistedState] = useState({});
   const [customFieldId, setCustomFieldId] = useState<string | undefined>("");
+  const [fetchedCustomFieldId, setFetchedCustomFieldId] = useState(false);
 
   const {
     context: { localId },
@@ -70,7 +71,15 @@ export const AppSettingsContextProvider = ({
   }, []);
 
   useEffect(() => {
-    if (loading || contextLoading || error || customFieldId || !localId) return;
+    if (
+      loading ||
+      contextLoading ||
+      error ||
+      customFieldId ||
+      fetchedCustomFieldId ||
+      !localId
+    )
+      return;
     const fetchCustomFieldId = async () => {
       setLoading(true);
       try {
@@ -79,25 +88,36 @@ export const AppSettingsContextProvider = ({
             Accept: "application/json",
           },
         });
-        const fieldsList = await response.json();
+        const fieldsList = (await response.json()) as Array<{
+          id: string;
+          schema?: Record<string, unknown>;
+        }>;
         const customField = fieldsList.find(
-          (field: any) =>
+          (field) =>
             field.schema?.custom ===
             localId.split("/").slice(0, 4).join("/") +
               "/growthbook-custom-field"
         );
-        setCustomFieldId(customField.id);
+        if (customField) {
+          setCustomFieldId(customField.id);
+        }
+        setFetchedCustomFieldId(true);
       } catch (e) {
         console.error(e);
-        setError(
-          "Unable to find the `GrowthBook Link` Custom Field. Please ensure an admin has added it to this project."
-        );
+        setError("Error fetching list of custom fields. " + e);
       } finally {
         setLoading(false);
       }
     };
     fetchCustomFieldId();
-  }, [customFieldId, loading, contextLoading, error, localId]);
+  }, [
+    customFieldId,
+    loading,
+    contextLoading,
+    error,
+    localId,
+    fetchedCustomFieldId,
+  ]);
 
   const pushUpdates = useMemo(
     () =>

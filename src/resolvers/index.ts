@@ -30,10 +30,14 @@ resolver.define("getIssueData", async (req) => {
 
 resolver.define("setIssueData", async (req) => {
   const { issueId, issueData } = req.payload;
-  const { customFieldId } = await getAppSettings();
-  if (!customFieldId || !isIssueData(issueData)) return false;
+  if (!isIssueData(issueData)) return false;
+  const [setIssueDataResponse, { customFieldId }] = await Promise.all([
+    setIssueData(issueId, issueData),
+    getAppSettings(),
+  ]);
+  if (!setIssueDataResponse || !customFieldId) return setIssueDataResponse;
   const obj = issueData.linkedObject;
-  const response = await asApp().requestJira(
+  const requestJiraResponse = await asApp().requestJira(
     route`/rest/api/2/app/field/value`,
     {
       method: "POST",
@@ -63,8 +67,7 @@ resolver.define("setIssueData", async (req) => {
       }),
     }
   );
-  if (response.status >= 300) return false;
-  return await setIssueData(issueId, issueData);
+  return requestJiraResponse.status < 300;
 });
 
 export const handler = resolver.getDefinitions();

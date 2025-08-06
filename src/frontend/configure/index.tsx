@@ -55,10 +55,7 @@ const App = () => {
       </Box>
       <Box>
         {error ? (
-          <Text>
-            <Icon label="" glyph="cross" />
-            There was an error:
-          </Text>
+          <Text>There was an error:</Text>
         ) : saving ? (
           <Text>
             <Spinner />
