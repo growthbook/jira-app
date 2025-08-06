@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { LinkedObject } from "src/utils/types";
 import ExperimentDisplay from "./ExperimentDisplay";
 import FeatureDisplay from "./FeatureDisplay";

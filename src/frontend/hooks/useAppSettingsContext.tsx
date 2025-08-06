@@ -20,7 +20,6 @@ interface AppSettings {
   persistedState: Record<string, any>;
   updatePersistedState: (key: string, value: any) => void;
   customFieldId: string | undefined;
-  setCustomFieldId: (value: string) => void;
 }
 
 const AppSettingsContext = createContext<AppSettings | null>(null);
@@ -160,7 +159,6 @@ export const AppSettingsContextProvider = ({
         persistedState,
         updatePersistedState,
         customFieldId,
-        setCustomFieldId,
       }}
     >
       {children}
