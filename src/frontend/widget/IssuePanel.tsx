@@ -1,6 +1,6 @@
 import React from "react";
 import LoadingSpinner from "./LoadingSpinner";
-import { ErrorMessage } from "@forge/react";
+import { Button, ErrorMessage, Inline } from "@forge/react";
 import { useIssueContext } from "../hooks/useIssueContext";
 import UnlinkedIssue from "./UnlinkedIssue";
 import LinkedObjectInfo from "./LinkedObjectInfo";
@@ -8,6 +8,7 @@ import LinkedObjectInfo from "./LinkedObjectInfo";
 export default function IssuePanel() {
   const {
     issueData,
+    setIssueData,
     loading: issueDataLoading,
     error: issueDataError,
   } = useIssueContext();
@@ -16,7 +17,19 @@ export default function IssuePanel() {
     return <LoadingSpinner text="Loading your saved data..." />;
 
   if (issueDataError) {
-    return <ErrorMessage>{issueDataError}</ErrorMessage>;
+    return (
+      <Inline
+        shouldWrap
+        alignBlock="center"
+        space="space.150"
+        rowSpace="space.0"
+      >
+        <ErrorMessage>{issueDataError}</ErrorMessage>
+        <Button onClick={() => setIssueData({})} spacing="compact">
+          Clear Data
+        </Button>
+      </Inline>
+    );
   }
 
   if (!issueData.linkedObject) {

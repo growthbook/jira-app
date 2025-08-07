@@ -15,6 +15,31 @@ modules:
       resolver:
         function: resolver
       useAsConfig: true
+  jira:customField:
+    - key: growthbook-custom-field
+      name: GrowthBook Link
+      description: The connected GrowthBook object (Feature or Experiment) for a single issue
+      type: object
+      readOnly: true
+      view:
+        formatter:
+          expression: "`${value.gbLink}`"
+      schema:
+        properties:
+          objectType:
+            type: string
+            enum: ["feature", "experiment"]
+            searchAlias: type
+          objectId:
+            type: string
+            searchAlias: id
+          objectName:
+            type: string
+            searchAlias: name
+          gbLink:
+            type: string
+            searchAlias: link
+        required: ["objectType", "objectId", "objectName", "gbLink"]
   function:
     - key: resolver
       handler: index.handler
@@ -32,6 +57,8 @@ app:
 permissions:
   scopes:
     - storage:app
+    - read:jira-work
+    - write:app-data:jira
   external:
     fetch:
       client:

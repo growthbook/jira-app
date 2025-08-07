@@ -71,7 +71,11 @@ export default function UnlinkedIssue() {
             ? "feature"
             : "experiment";
           setIssueData({
-            linkedObject: { type, id: selectedOption.value },
+            linkedObject: {
+              type,
+              id: selectedOption.value,
+              name: selectedOption.label,
+            },
           });
         }}
         placeholder="Choose a feature or experiment to link to this issue"

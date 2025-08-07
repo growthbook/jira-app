@@ -5,6 +5,9 @@ import {
   setIssueData,
   updateAppSettings,
 } from "../utils/storage";
+import { route, asApp } from "@forge/api";
+import { getGbLink } from "../utils";
+import { isIssueData, isLinkedObject } from "../utils/types";
 
 const resolver = new Resolver();
 
@@ -27,7 +30,44 @@ resolver.define("getIssueData", async (req) => {
 
 resolver.define("setIssueData", async (req) => {
   const { issueId, issueData } = req.payload;
-  return setIssueData(issueId, issueData);
+  if (!isIssueData(issueData)) return false;
+  const [setIssueDataResponse, { customFieldId }] = await Promise.all([
+    setIssueData(issueId, issueData),
+    getAppSettings(),
+  ]);
+  if (!setIssueDataResponse || !customFieldId) return setIssueDataResponse;
+  const obj = issueData.linkedObject;
+  const requestJiraResponse = await asApp().requestJira(
+    route`/rest/api/2/app/field/value`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        updates: [
+          {
+            customField: customFieldId,
+            issueIds: [issueId],
+            value: isLinkedObject(obj)
+              ? {
+                  objectType: obj.type,
+                  objectId: obj.id,
+                  objectName: obj.name,
+                  gbLink: getGbLink(
+                    `/${obj.type === "feature" ? obj.type + "s" : obj.type}/${
+                      obj.id
+                    }`
+                  ),
+                }
+              : null,
+          },
+        ],
+      }),
+    }
+  );
+  return requestJiraResponse.status < 300;
 });
 
 export const handler = resolver.getDefinitions();

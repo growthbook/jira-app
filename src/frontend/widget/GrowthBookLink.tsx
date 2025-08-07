@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Icon, Inline } from "@forge/react";
 import { ForgeNode } from "@forge/react/out/types";
-import { GB_APP_ORIGIN } from "../../utils/consts";
+import { getGbLink } from "../../utils";
 
 interface LinkProps {
   path?: string;
@@ -15,7 +15,7 @@ export default function GrowthBookLink({
   hideIcon,
 }: LinkProps) {
   return (
-    <Link openNewTab href={new URL(path || "", GB_APP_ORIGIN).toString()}>
+    <Link openNewTab href={getGbLink(path)}>
       <Inline shouldWrap={false} alignBlock="center" space="space.025">
         {children}
         {!hideIcon && (
