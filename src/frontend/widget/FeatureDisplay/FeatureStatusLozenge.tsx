@@ -32,8 +32,8 @@ function environmentStatus(env: FeatureEnvironment): {
   return { text: "enabled", appearance: "success" };
 }
 
-// One lozenge per environment, plus draft/archived markers. Renders as a
-// fragment so the parent Inline spaces them.
+// One lozenge per environment plus a draft marker. Renders as a fragment so
+// the parent Inline spaces them.
 export default function FeatureStatusLozenge({
   feature,
   tooltipContent,
@@ -41,12 +41,20 @@ export default function FeatureStatusLozenge({
   feature: Feature;
   tooltipContent?: string;
 }) {
+  // Archiving disables every environment, so per-environment state would mislead.
+  if (feature.archived) {
+    return (
+      <Tooltip content="Archived features are disabled in all environments">
+        <Lozenge appearance="removed">archived</Lozenge>
+      </Tooltip>
+    );
+  }
+
   const hasDraft = (feature.revisions || []).length > 0;
   const draftLozenge = <Lozenge appearance="new">draft</Lozenge>;
 
   return (
     <>
-      {feature.archived && <Lozenge appearance="removed">archived</Lozenge>}
       {Object.entries(feature.environments).map(([envId, env]) => {
         const { text, appearance } = environmentStatus(env);
         return (
