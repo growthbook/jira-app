@@ -52,7 +52,7 @@ resources:
     path: public
 app:
   runtime:
-    name: nodejs20.x
+    name: nodejs22.x
   id: ari:cloud:ecosystem::app/78d5cfe5-5311-4e0e-9bbd-5be2ae1eb445
 permissions:
   scopes:
@@ -62,4 +62,4 @@ permissions:
   external:
     fetch:
       client:
-        - "https://api.growthbook.io"
+        - address: https://api.growthbook.io
