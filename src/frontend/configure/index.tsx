@@ -16,6 +16,7 @@ import {
 } from "../hooks/useAppSettingsContext";
 import { Icon } from "@forge/react";
 import GrowthBookLink from "../widget/GrowthBookLink";
+import EnvironmentSelect from "./EnvironmentSelect";
 
 const App = () => {
   const { apiKey, setApiKey, error, loading, saving } = useAppSettingsContext();
@@ -53,6 +54,11 @@ const App = () => {
           </Inline>
         </HelperMessage>
       </Box>
+      {apiKey && (
+        <Box paddingBlockStart="space.200">
+          <EnvironmentSelect />
+        </Box>
+      )}
       <Box>
         {error ? (
           <Text>There was an error:</Text>

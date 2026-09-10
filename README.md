@@ -21,6 +21,15 @@ Every site running the app is listed by `forge install list`; the `Environment` 
 2. Merge to `main`, check it out, then `forge deploy -e production`.
 3. If the deploy reports a major version bump (only happens when scopes or egress change), each site's admin must accept the upgrade before they see it; otherwise every production install picks it up automatically.
 
+## Configuration
+
+Site admins configure the app under **Apps → Manage apps → GrowthBook for Jira → Configure**. Settings are per Jira site.
+
+- **API Key** — a GrowthBook API key (a `readonly` key is enough; the app never writes to GrowthBook).
+- **Environments to show** — optional. Linked features show one status lozenge per GrowthBook environment; pick a subset here to keep the panel compact on orgs with many environments. Leave empty to show all.
+
+An issue can link to any number of features and experiments. The **GrowthBook Link** custom field (usable in JQL) reflects the first link on the issue.
+
 ## Connecting to a self-hosted GrowthBook instance
 
 Forge apps must specify what urls they connect to before they're published, so to use this app with a non-cloud
