@@ -190,7 +190,14 @@ export interface ExperimentResponse {
 }
 
 export interface IssueData {
+  // Legacy single link; read via getLinkedObjects(), never written anymore.
   linkedObject?: LinkedObject;
+  linkedObjects?: LinkedObject[];
+}
+
+export function getLinkedObjects(data: IssueData | undefined): LinkedObject[] {
+  if (data?.linkedObjects) return data.linkedObjects;
+  return data?.linkedObject ? [data.linkedObject] : [];
 }
 
 export function isIssueData(value: unknown): value is IssueData {
@@ -201,5 +208,9 @@ export function isIssueData(value: unknown): value is IssueData {
     !isLinkedObject(typecast.linkedObject)
   )
     return false;
+  if (typeof typecast.linkedObjects !== "undefined") {
+    if (!Array.isArray(typecast.linkedObjects)) return false;
+    if (!typecast.linkedObjects.every(isLinkedObject)) return false;
+  }
   return true;
 }
