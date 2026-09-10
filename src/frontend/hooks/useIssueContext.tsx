@@ -7,7 +7,12 @@ import React, {
   useMemo,
 } from "react";
 import { invoke } from "@forge/bridge";
-import { isIssueData, IssueData } from "../../utils/types";
+import {
+  getLinkedObjects,
+  isIssueData,
+  IssueData,
+  LinkedObject,
+} from "../../utils/types";
 import debounce from "debounce";
 import { useJiraContext } from "./useJiraContext";
 
@@ -15,6 +20,9 @@ interface IssueContextInfo {
   issueId: string;
   issueData: IssueData;
   setIssueData: (value: IssueData) => void;
+  linkedObjects: LinkedObject[];
+  addLinkedObject: (obj: LinkedObject) => void;
+  removeLinkedObject: (index: number) => void;
   loading: boolean;
   error: string | undefined;
   saving: boolean;
@@ -64,7 +72,8 @@ export const IssueContextProvider = ({ children }: { children: ReactNode }) => {
           });
         },
         1000,
-        { immediate: true }
+        // Trailing edge: a leading-edge debounce drops link/unlink clicks made within the window.
+        { immediate: false }
       ),
     [issueId]
   );
@@ -74,12 +83,25 @@ export const IssueContextProvider = ({ children }: { children: ReactNode }) => {
     pushUpdates(issueData);
   }, [issueData]);
 
+  // Functional updates so rapid link/unlink clicks can't clobber each other.
+  const addLinkedObject = (obj: LinkedObject) =>
+    setIssueData((prev) => ({
+      linkedObjects: [...getLinkedObjects(prev), obj],
+    }));
+  const removeLinkedObject = (index: number) =>
+    setIssueData((prev) => ({
+      linkedObjects: getLinkedObjects(prev).filter((_, i) => i !== index),
+    }));
+
   return (
     <IssueContext.Provider
       value={{
         issueId,
         issueData,
         setIssueData,
+        linkedObjects: getLinkedObjects(issueData),
+        addLinkedObject,
+        removeLinkedObject,
         loading,
         error,
         saving,

@@ -7,7 +7,7 @@ import {
 } from "../utils/storage";
 import { route, asApp } from "@forge/api";
 import { getGbLink } from "../utils";
-import { isIssueData, isLinkedObject } from "../utils/types";
+import { getLinkedObjects, isIssueData } from "../utils/types";
 
 const resolver = new Resolver();
 
@@ -31,12 +31,14 @@ resolver.define("getIssueData", async (req) => {
 resolver.define("setIssueData", async (req) => {
   const { issueId, issueData } = req.payload;
   if (!isIssueData(issueData)) return false;
+  const linkedObjects = getLinkedObjects(issueData);
   const [setIssueDataResponse, { customFieldId }] = await Promise.all([
-    setIssueData(issueId, issueData),
+    setIssueData(issueId, { linkedObjects }),
     getAppSettings(),
   ]);
   if (!setIssueDataResponse || !customFieldId) return setIssueDataResponse;
-  const obj = issueData.linkedObject;
+  // The custom field holds a single value; surface the first link there.
+  const obj = linkedObjects[0];
   const requestJiraResponse = await asApp().requestJira(
     route`/rest/api/2/app/field/value`,
     {
@@ -50,7 +52,7 @@ resolver.define("setIssueData", async (req) => {
           {
             customField: customFieldId,
             issueIds: [issueId],
-            value: isLinkedObject(obj)
+            value: obj
               ? {
                   objectType: obj.type,
                   objectId: obj.id,

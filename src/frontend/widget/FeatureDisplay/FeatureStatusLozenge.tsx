@@ -6,6 +6,9 @@ import {
   FeatureEnvironment,
   FeatureRolloutRule,
 } from "../../../utils/types";
+import usePersistedState from "../../hooks/usePersistedState";
+
+export const VISIBLE_ENVIRONMENTS_KEY = "visibleEnvironments";
 
 function environmentStatus(env: FeatureEnvironment): {
   text: string;
@@ -41,6 +44,11 @@ export default function FeatureStatusLozenge({
   feature: Feature;
   tooltipContent?: string;
 }) {
+  const [visibleEnvironments] = usePersistedState<string[]>(
+    VISIBLE_ENVIRONMENTS_KEY,
+    []
+  );
+
   // Archiving disables every environment, so per-environment state would mislead.
   if (feature.archived) {
     return (
@@ -53,9 +61,17 @@ export default function FeatureStatusLozenge({
   const hasDraft = (feature.revisions || []).length > 0;
   const draftLozenge = <Lozenge appearance="new">draft</Lozenge>;
 
+  // Empty selection, or one that matches nothing (renamed envs), shows all.
+  const allEnvironments = Object.entries(feature.environments);
+  const selected = allEnvironments.filter(
+    ([envId]) =>
+      Array.isArray(visibleEnvironments) && visibleEnvironments.includes(envId)
+  );
+  const environments = selected.length ? selected : allEnvironments;
+
   return (
     <>
-      {Object.entries(feature.environments).map(([envId, env]) => {
+      {environments.map(([envId, env]) => {
         const { text, appearance } = environmentStatus(env);
         return (
           <Lozenge key={envId} appearance={appearance}>

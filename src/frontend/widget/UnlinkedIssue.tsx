@@ -4,7 +4,11 @@ import { Box, ErrorMessage, Select } from "@forge/react";
 import useApi from "../hooks/useApi";
 import { useIssueContext } from "../hooks/useIssueContext";
 
-export default function UnlinkedIssue() {
+export default function UnlinkedIssue({
+  onLinked,
+}: {
+  onLinked?: () => void;
+}) {
   const {
     isLoading: featuresLoading,
     error: featuresError,
@@ -19,7 +23,8 @@ export default function UnlinkedIssue() {
   );
 
   const {
-    setIssueData,
+    linkedObjects,
+    addLinkedObject,
     loading: contextLoading,
     error: contextError,
   } = useIssueContext();
@@ -47,14 +52,13 @@ export default function UnlinkedIssue() {
   if (experimentsError)
     return <ErrorMessage>{experimentsError.message}</ErrorMessage>;
 
-  const featOptions = featureKeys.map((key) => ({
-    label: key,
-    value: key,
-  }));
-  const expOptions = experimentsData.experiments.map((e) => ({
-    label: e.name,
-    value: e.id,
-  }));
+  const alreadyLinked = new Set(linkedObjects.map((o) => `${o.type}:${o.id}`));
+  const featOptions = featureKeys
+    .filter((key) => !alreadyLinked.has(`feature:${key}`))
+    .map((key) => ({ label: key, value: key }));
+  const expOptions = experimentsData.experiments
+    .filter((e) => !alreadyLinked.has(`experiment:${e.id}`))
+    .map((e) => ({ label: e.name, value: e.id }));
 
   const featureKeySet = new Set(featureKeys);
 
@@ -70,13 +74,12 @@ export default function UnlinkedIssue() {
           const type = featureKeySet.has(selectedOption.value)
             ? "feature"
             : "experiment";
-          setIssueData({
-            linkedObject: {
-              type,
-              id: selectedOption.value,
-              name: selectedOption.label,
-            },
+          addLinkedObject({
+            type,
+            id: selectedOption.value,
+            name: selectedOption.label,
           });
+          onLinked?.();
         }}
         placeholder="Choose a feature or experiment to link to this issue"
       />

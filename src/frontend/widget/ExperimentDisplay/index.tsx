@@ -11,7 +11,6 @@ import {
 import React from "react";
 import type { Experiment, ExperimentResponse, Feature } from "src/utils/types";
 import GrowthBookLink from "../GrowthBookLink";
-import { useIssueContext } from "../../hooks/useIssueContext";
 import { formatDate, getWinningVariant } from "../../../utils";
 import useApi from "../../hooks/useApi";
 import LoadingSpinner from "../LoadingSpinner";
@@ -53,10 +52,11 @@ export function ExperimentDates({ experiment }: { experiment: Experiment }) {
 
 export default function ExperimentDisplay({
   experimentId,
+  onRemove,
 }: {
   experimentId: string;
+  onRemove: () => void;
 }) {
-  const { setIssueData } = useIssueContext();
   const {
     isLoading: experimentApiLoading,
     error: experimentApiError,
@@ -84,7 +84,8 @@ export default function ExperimentDisplay({
     return <LoadingSpinner text="Fetching your experiment..." />;
   if (experimentApiError)
     return <ErrorMessage>{experimentApiError.message}</ErrorMessage>;
-  if (!experiment) return <MissingObject objectType="experiment" />;
+  if (!experiment)
+    return <MissingObject objectType="experiment" onRemove={onRemove} />;
   if (featureApiLoading) {
     return <LoadingSpinner text="Loading associated feature status..." />;
   }
@@ -99,8 +100,11 @@ export default function ExperimentDisplay({
     : associatedFeature
     ? "Feature Flag"
     : "Awaiting Implementation";
+  const expKind =
+    experiment.type === "multi-armed-bandit" ? "Bandit" : "Experiment";
 
   const winningVariant = getWinningVariant(experiment);
+  const winnerId = experiment.resultSummary?.winner;
 
   return (
     <Stack alignBlock="start" alignInline="start" space="space.050">
@@ -127,18 +131,33 @@ export default function ExperimentDisplay({
         </Inline>
 
         <Button
+          iconBefore="unlink"
           appearance="subtle"
-          onClick={() => setIssueData({})}
+          onClick={onRemove}
           spacing="compact"
         >
           <Text weight="medium" color="color.link" size="small" align="center">
-            Replace Linked Experiment
+            Unlink
           </Text>
         </Button>
       </Inline>
       <ExperimentDates experiment={experiment} />
       <Inline grow="fill" space="space.050" alignBlock="center">
-        Type: <Text weight="medium">{expType}</Text>
+        Type:{" "}
+        <Text weight="medium">
+          {expKind} · {expType}
+        </Text>
+      </Inline>
+      <Inline shouldWrap space="space.050" alignBlock="center">
+        <Text>Variations:</Text>
+        {experiment.variations.map((v) => (
+          <Lozenge
+            key={v.variationId}
+            appearance={v.variationId === winnerId ? "success" : "default"}
+          >
+            {v.variationId === winnerId ? `${v.name} (winner)` : v.name}
+          </Lozenge>
+        ))}
       </Inline>
       {featureData?.feature && (
         <Box paddingBlockStart="space.100">

@@ -1,9 +1,13 @@
 import { Box, Button, Text } from "@forge/react";
 import React from "react";
-import { useIssueContext } from "../hooks/useIssueContext";
 
-export default function MissingObject({ objectType }: { objectType: string }) {
-  const { setIssueData } = useIssueContext();
+export default function MissingObject({
+  objectType,
+  onRemove,
+}: {
+  objectType: string;
+  onRemove: () => void;
+}) {
   return (
     <Box>
       <Text>
@@ -13,7 +17,7 @@ export default function MissingObject({ objectType }: { objectType: string }) {
       <Button
         iconBefore="unlink"
         appearance="subtle"
-        onClick={() => setIssueData({})}
+        onClick={onRemove}
         spacing="compact"
       >
         Remove linked {objectType}

@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
-import { Button, ErrorMessage, Inline } from "@forge/react";
+import { Box, Button, ErrorMessage, Inline, Stack } from "@forge/react";
 import { useIssueContext } from "../hooks/useIssueContext";
 import UnlinkedIssue from "./UnlinkedIssue";
 import LinkedObjectInfo from "./LinkedObjectInfo";
 
 export default function IssuePanel() {
   const {
-    issueData,
+    linkedObjects,
     setIssueData,
+    removeLinkedObject,
     loading: issueDataLoading,
     error: issueDataError,
   } = useIssueContext();
+  const [addingLink, setAddingLink] = useState(false);
 
   if (issueDataLoading)
     return <LoadingSpinner text="Loading your saved data..." />;
@@ -32,8 +34,42 @@ export default function IssuePanel() {
     );
   }
 
-  if (!issueData.linkedObject) {
+  if (!linkedObjects.length) {
     return <UnlinkedIssue />;
   }
-  return <LinkedObjectInfo linkedObject={issueData.linkedObject} />;
+
+  return (
+    <Stack space="space.200">
+      {linkedObjects.map((linkedObject, i) => (
+        <LinkedObjectInfo
+          key={`${linkedObject.type}:${linkedObject.id}`}
+          linkedObject={linkedObject}
+          onRemove={() => removeLinkedObject(i)}
+        />
+      ))}
+      {addingLink ? (
+        <Box>
+          <UnlinkedIssue onLinked={() => setAddingLink(false)} />
+          <Button
+            appearance="subtle"
+            spacing="compact"
+            onClick={() => setAddingLink(false)}
+          >
+            Cancel
+          </Button>
+        </Box>
+      ) : (
+        <Box>
+          <Button
+            iconBefore="link"
+            appearance="subtle"
+            spacing="compact"
+            onClick={() => setAddingLink(true)}
+          >
+            Link another feature or experiment
+          </Button>
+        </Box>
+      )}
+    </Stack>
+  );
 }
