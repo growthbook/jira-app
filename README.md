@@ -39,7 +39,7 @@ index eee3f43..5d9ba32 100644
 @@ -28,11 +28,11 @@ resources:
  app:
    runtime:
-     name: nodejs22.x
+     name: nodejs24.x
 -  id: ari:cloud:ecosystem::app/78d5cfe5-5311-4e0e-9bbd-5be2ae1eb445
 +  id: generated-app-id
  permissions:
