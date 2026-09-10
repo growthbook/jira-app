@@ -1,7 +1,11 @@
 import { Lozenge, Tooltip } from "@forge/react";
 import React from "react";
 import type { ThemeAppearance } from "@atlaskit/lozenge";
-import { Feature, FeatureEnvironment } from "../../../utils/types";
+import {
+  Feature,
+  FeatureEnvironment,
+  FeatureRolloutRule,
+} from "../../../utils/types";
 
 function environmentStatus(env: FeatureEnvironment): {
   text: string;
@@ -16,8 +20,14 @@ function environmentStatus(env: FeatureEnvironment): {
   ) {
     return { text: "experiment", appearance: "inprogress" };
   }
-  if (active.some((rule) => rule.type === "rollout")) {
-    return { text: "rolling out", appearance: "inprogress" };
+  const rollout = active.find(
+    (rule): rule is FeatureRolloutRule => rule.type === "rollout"
+  );
+  if (rollout) {
+    return {
+      text: `rolled out to ${Math.round(rollout.coverage * 100)}%`,
+      appearance: "inprogress",
+    };
   }
   return { text: "enabled", appearance: "success" };
 }
