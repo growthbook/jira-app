@@ -1,8 +1,9 @@
 import React from "react";
 import LoadingSpinner from "./LoadingSpinner";
 import { Box, ErrorMessage, Select } from "@forge/react";
-import useApi from "../hooks/useApi";
+import { useApiAcrossProjects } from "../hooks/useApi";
 import { useIssueContext } from "../hooks/useIssueContext";
+import { useProjectSettingsContext } from "../hooks/useProjectSettingsContext";
 
 export default function UnlinkedIssue({
   onLinked,
@@ -10,17 +11,30 @@ export default function UnlinkedIssue({
   onLinked?: () => void;
 }) {
   const {
+    settings: { gbProjects = [] },
+  } = useProjectSettingsContext();
+  const {
     isLoading: featuresLoading,
     error: featuresError,
-    data: featureKeys,
-  } = useApi<string[]>("/api/v1/feature-keys");
+    data: featureKeyLists,
+  } = useApiAcrossProjects<string[]>("/api/v1/feature-keys", gbProjects);
   const {
     isLoading: experimentsLoading,
     error: experimentsError,
-    data: experimentsData,
-  } = useApi<{ experiments: Array<{ id: string; name: string }> }>(
-    "/api/v1/experiment-names"
-  );
+    data: experimentLists,
+  } = useApiAcrossProjects<{
+    experiments: Array<{ id: string; name: string }>;
+  }>("/api/v1/experiment-names", gbProjects);
+
+  const featureKeys =
+    featureKeyLists && Array.from(new Set(featureKeyLists.flat()));
+  const experimentsData = experimentLists && {
+    experiments: Array.from(
+      new Map(
+        experimentLists.flatMap((l) => l.experiments).map((e) => [e.id, e])
+      ).values()
+    ),
+  };
 
   const {
     linkedObjects,

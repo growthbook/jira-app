@@ -6,9 +6,7 @@ import {
   FeatureEnvironment,
   FeatureRolloutRule,
 } from "../../../utils/types";
-import usePersistedState from "../../hooks/usePersistedState";
-
-export const VISIBLE_ENVIRONMENTS_KEY = "visibleEnvironments";
+import useVisibleEnvironments from "../../hooks/useVisibleEnvironments";
 
 function environmentStatus(env: FeatureEnvironment): {
   text: string;
@@ -44,10 +42,7 @@ export default function FeatureStatusLozenge({
   feature: Feature;
   tooltipContent?: string;
 }) {
-  const [visibleEnvironments] = usePersistedState<string[]>(
-    VISIBLE_ENVIRONMENTS_KEY,
-    []
-  );
+  const visibleEnvironments = useVisibleEnvironments();
 
   // Archiving disables every environment, so per-environment state would mislead.
   if (feature.archived) {
@@ -63,9 +58,8 @@ export default function FeatureStatusLozenge({
 
   // Empty selection, or one that matches nothing (renamed envs), shows all.
   const allEnvironments = Object.entries(feature.environments);
-  const selected = allEnvironments.filter(
-    ([envId]) =>
-      Array.isArray(visibleEnvironments) && visibleEnvironments.includes(envId)
+  const selected = allEnvironments.filter(([envId]) =>
+    visibleEnvironments.includes(envId)
   );
   const environments = selected.length ? selected : allEnvironments;
 

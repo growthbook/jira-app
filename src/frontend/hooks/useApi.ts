@@ -49,6 +49,32 @@ type CurriedApiCallType<T> = (
   unrollPaginationKey?: string
 ) => Promise<T>;
 
+// The API filters by a single projectId, so scoping to several projects means
+// one request each; no projects means one unscoped request.
+export function useApiAcrossProjects<Response = unknown>(
+  path: string,
+  projectIds: string[]
+) {
+  const { apiKey, loading } = useAppSettingsContext();
+  const scope = projectIds.join(",");
+  return useSWR<Response[], Error>(
+    !loading && apiKey ? `${path}_${apiKey}_projects:${scope}` : null,
+    async () => {
+      const urls = projectIds.length
+        ? projectIds.map((id) => `${path}?projectId=${encodeURIComponent(id)}`)
+        : [path];
+      return Promise.all(
+        urls.map((url) => apiCall(apiKey, url, { method: "GET" }, undefined))
+      );
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60_000,
+      refreshInterval: 10 * 60_000,
+    }
+  );
+}
+
 export default function useApi<Response = unknown>(
   path: string | null,
   useSwrSettings?: SWRConfiguration,

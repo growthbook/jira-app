@@ -7,24 +7,21 @@ interface Option {
   value: string;
 }
 
-export default function EnvironmentSelect({
+export default function ProjectSelect({
   value: selectedIds,
   onChange,
-  helper = "Leave empty to show every environment on linked features.",
 }: {
   value: string[];
   onChange: (ids: string[]) => void;
-  helper?: string;
 }) {
   const { data, isLoading, error } = useApi<{
-    environments: Array<{ id: string; description?: string }>;
-  }>("/api/v1/environments");
+    projects: Array<{ id: string; name: string }>;
+  }>("/api/v1/projects", undefined, "projects");
 
-  const options: Option[] = (data?.environments || []).map((env) => ({
-    label: env.id,
-    value: env.id,
+  const options: Option[] = (data?.projects || []).map((p) => ({
+    label: p.name,
+    value: p.id,
   }));
-  // Keep ids that no longer exist selectable so they can be removed.
   const value: Option[] = selectedIds.map(
     (id) => options.find((o) => o.value === id) || { label: id, value: id }
   );
@@ -32,10 +29,10 @@ export default function EnvironmentSelect({
   return (
     <Box>
       <Inline>
-        <Label labelFor="gb-environments-select">Environments to show</Label>
+        <Label labelFor="gb-projects-select">GrowthBook projects</Label>
       </Inline>
       <Select
-        inputId="gb-environments-select"
+        inputId="gb-projects-select"
         isMulti
         isSearchable
         isLoading={isLoading}
@@ -50,10 +47,12 @@ export default function EnvironmentSelect({
             : [];
           onChange(list.map((o) => o.value));
         }}
-        placeholder="All environments"
+        placeholder="All projects"
       />
       <HelperMessage>
-        {error ? `Could not load environments: ${error.message}` : helper}
+        {error
+          ? `Could not load projects: ${error.message}`
+          : "Only features and experiments in these projects are offered when linking from this Jira project. Leave empty for all."}
       </HelperMessage>
     </Box>
   );

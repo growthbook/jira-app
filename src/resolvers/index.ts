@@ -2,12 +2,18 @@ import Resolver from "@forge/resolver";
 import {
   getAppSettings,
   getIssueData,
+  getProjectSettings,
   setIssueData,
+  setProjectSettings,
   updateAppSettings,
 } from "../utils/storage";
 import { route, asApp } from "@forge/api";
 import { getGbLink } from "../utils";
-import { getLinkedObjects, isIssueData } from "../utils/types";
+import {
+  getLinkedObjects,
+  isIssueData,
+  isProjectSettings,
+} from "../utils/types";
 
 const resolver = new Resolver();
 
@@ -21,6 +27,19 @@ resolver.define("updateAppSettings", async (req) => {
   // TODO: validation
   await updateAppSettings(updates);
   return true;
+});
+
+resolver.define("getProjectSettings", async (req) => {
+  const { jiraProjectId } = req.payload;
+  if (typeof jiraProjectId !== "string" || !jiraProjectId) return {};
+  return getProjectSettings(jiraProjectId);
+});
+
+resolver.define("setProjectSettings", async (req) => {
+  const { jiraProjectId, settings } = req.payload;
+  if (typeof jiraProjectId !== "string" || !jiraProjectId) return false;
+  if (!isProjectSettings(settings)) return false;
+  return setProjectSettings(jiraProjectId, settings);
 });
 
 resolver.define("getIssueData", async (req) => {

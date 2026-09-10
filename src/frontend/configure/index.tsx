@@ -17,9 +17,14 @@ import {
 import { Icon } from "@forge/react";
 import GrowthBookLink from "../widget/GrowthBookLink";
 import EnvironmentSelect from "./EnvironmentSelect";
+import usePersistedState from "../hooks/usePersistedState";
+import { VISIBLE_ENVIRONMENTS_KEY } from "../hooks/useVisibleEnvironments";
 
 const App = () => {
   const { apiKey, setApiKey, error, loading, saving } = useAppSettingsContext();
+  const [visibleEnvironments, setVisibleEnvironments] = usePersistedState<
+    string[]
+  >(VISIBLE_ENVIRONMENTS_KEY, []);
 
   if (loading) {
     return (
@@ -56,7 +61,10 @@ const App = () => {
       </Box>
       {apiKey && (
         <Box paddingBlockStart="space.200">
-          <EnvironmentSelect />
+          <EnvironmentSelect
+            value={Array.isArray(visibleEnvironments) ? visibleEnvironments : []}
+            onChange={setVisibleEnvironments}
+          />
         </Box>
       )}
       <Box>
