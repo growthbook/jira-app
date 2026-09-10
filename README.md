@@ -30,6 +30,13 @@ Site admins configure the app under **Apps → Manage apps → GrowthBook for Ji
 
 An issue can link to any number of features and experiments. The **GrowthBook Link** custom field (usable in JQL) reflects the first link on the issue.
 
+### Per-project settings
+
+Project admins can override the site-wide settings for one Jira project under **Project settings → Apps → GrowthBook**:
+
+- **Customize which environments this project shows** — when on, replaces the site-wide environment list for issues in this project (empty = all).
+- **GrowthBook projects** — restricts the feature/experiment picker to these GrowthBook projects. Existing links are never hidden by this filter.
+
 ## Connecting to a self-hosted GrowthBook instance
 
 Forge apps must specify what urls they connect to before they're published, so to use this app with a non-cloud

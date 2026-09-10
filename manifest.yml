@@ -15,6 +15,13 @@ modules:
       resolver:
         function: resolver
       useAsConfig: true
+  jira:projectSettingsPage:
+    - key: growthbook-project-settings
+      resource: project-settings-page
+      title: GrowthBook
+      render: native
+      resolver:
+        function: resolver
   jira:customField:
     - key: growthbook-custom-field
       name: GrowthBook Link
@@ -48,6 +55,8 @@ resources:
     path: src/frontend/widget/index.tsx
   - key: main-configure-page
     path: src/frontend/configure/index.tsx
+  - key: project-settings-page
+    path: src/frontend/project-settings/index.tsx
   - key: public
     path: public
 app:

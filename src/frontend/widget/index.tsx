@@ -14,6 +14,7 @@ import { JiraContextProvider, useJiraContext } from "../hooks/useJiraContext";
 import IssuePanel from "./IssuePanel";
 import LoadingSpinner from "./LoadingSpinner";
 import { IssueContextProvider } from "../hooks/useIssueContext";
+import { ProjectSettingsProvider } from "../hooks/useProjectSettingsContext";
 
 const App = () => {
   const {
@@ -61,9 +62,11 @@ ForgeReconciler.render(
   <React.StrictMode>
     <JiraContextProvider>
       <AppSettingsContextProvider>
-        <IssueContextProvider>
-          <App />
-        </IssueContextProvider>
+        <ProjectSettingsProvider>
+          <IssueContextProvider>
+            <App />
+          </IssueContextProvider>
+        </ProjectSettingsProvider>
       </AppSettingsContextProvider>
     </JiraContextProvider>
   </React.StrictMode>

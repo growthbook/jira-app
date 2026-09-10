@@ -1,7 +1,8 @@
 import { kvs } from "@forge/kvs";
-import { IssueData, StoredAppSettings } from "./types";
+import { IssueData, ProjectSettings, StoredAppSettings } from "./types";
 
 const APP_SETTINGS_KEY = "GB_APP_SETTINGS";
+const PROJECT_SETTINGS_PREFIX = "GB_PROJECT_SETTINGS:";
 const APP_SETTINGS_DEFAULTS: StoredAppSettings = {
   apiKey: "",
   persistedState: {},
@@ -22,6 +23,20 @@ export async function updateAppSettings(
     ...currentSettings,
     ...partialSettings,
   });
+  return true;
+}
+
+export async function getProjectSettings(
+  jiraProjectId: string
+): Promise<ProjectSettings> {
+  return (await kvs.get(PROJECT_SETTINGS_PREFIX + jiraProjectId)) || {};
+}
+
+export async function setProjectSettings(
+  jiraProjectId: string,
+  settings: ProjectSettings
+) {
+  await kvs.set(PROJECT_SETTINGS_PREFIX + jiraProjectId, settings);
   return true;
 }
 

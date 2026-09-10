@@ -200,6 +200,28 @@ export function getLinkedObjects(data: IssueData | undefined): LinkedObject[] {
   return data?.linkedObject ? [data.linkedObject] : [];
 }
 
+// Per-Jira-project overrides; an undefined key inherits the site-wide setting.
+export interface ProjectSettings {
+  visibleEnvironments?: string[];
+  gbProjects?: string[];
+}
+
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((s) => typeof s === "string");
+
+export function isProjectSettings(value: unknown): value is ProjectSettings {
+  if (typeof value !== "object" || value === null) return false;
+  const typecast = value as ProjectSettings;
+  if (
+    typecast.visibleEnvironments !== undefined &&
+    !isStringArray(typecast.visibleEnvironments)
+  )
+    return false;
+  if (typecast.gbProjects !== undefined && !isStringArray(typecast.gbProjects))
+    return false;
+  return true;
+}
+
 export function isIssueData(value: unknown): value is IssueData {
   if (typeof value !== "object" || value === null) return false;
   const typecast = value as IssueData;
