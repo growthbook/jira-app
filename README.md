@@ -13,6 +13,14 @@ See [Set up Forge](https://developer.atlassian.com/platform/forge/set-up-forge/)
 - Use the `forge install` command when you want to install the app on a new site.
 - Once the app is installed on a site, the site picks up the new app changes you deploy without needing to rerun the install command.
 
+### Deploying
+
+Every site running the app is listed by `forge install list`; the `Environment` column separates the `development` installs used for testing from the `production` installs customers use.
+
+1. Test with `forge tunnel` (or `forge deploy` — both only touch the `development` environment).
+2. Merge to `main`, check it out, then `forge deploy -e production`.
+3. If the deploy reports a major version bump (only happens when scopes or egress change), each site's admin must accept the upgrade before they see it; otherwise every production install picks it up automatically.
+
 ## Connecting to a self-hosted GrowthBook instance
 
 Forge apps must specify what urls they connect to before they're published, so to use this app with a non-cloud
