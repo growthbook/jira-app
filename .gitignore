@@ -50,3 +50,5 @@ Thumbs.db
 
 
 /.forge/
+# Short-lived tunnel credentials written by `forge tunnel`
+/.container-service-assets/
