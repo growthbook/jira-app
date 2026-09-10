@@ -1,6 +1,29 @@
 import { Lozenge, Tooltip } from "@forge/react";
 import React from "react";
-import { Feature } from "../../../utils/types";
+import type { ThemeAppearance } from "@atlaskit/lozenge";
+import { Feature, FeatureEnvironment } from "../../../utils/types";
+
+function environmentStatus(env: FeatureEnvironment): {
+  text: string;
+  appearance: ThemeAppearance;
+} {
+  if (!env.enabled) return { text: "disabled", appearance: "default" };
+  const active = env.rules.filter((rule) => rule.enabled);
+  if (
+    active.some(
+      (rule) => rule.type === "experiment" || rule.type === "experiment-ref"
+    )
+  ) {
+    return { text: "experiment", appearance: "inprogress" };
+  }
+  if (active.some((rule) => rule.type === "rollout")) {
+    return { text: "rolling out", appearance: "inprogress" };
+  }
+  return { text: "enabled", appearance: "success" };
+}
+
+// One lozenge per environment, plus draft/archived markers. Renders as a
+// fragment so the parent Inline spaces them.
 export default function FeatureStatusLozenge({
   feature,
   tooltipContent,
@@ -9,14 +32,25 @@ export default function FeatureStatusLozenge({
   tooltipContent?: string;
 }) {
   const hasDraft = (feature.revisions || []).length > 0;
-  const lozenge = (
-    <Lozenge appearance={hasDraft ? "inprogress" : "success"}>
-      {hasDraft ? "draft" : "live"}
-    </Lozenge>
-  );
+  const draftLozenge = <Lozenge appearance="new">draft</Lozenge>;
 
-  if (tooltipContent) {
-    return <Tooltip content={tooltipContent}>{lozenge}</Tooltip>;
-  }
-  return lozenge;
+  return (
+    <>
+      {feature.archived && <Lozenge appearance="removed">archived</Lozenge>}
+      {Object.entries(feature.environments).map(([envId, env]) => {
+        const { text, appearance } = environmentStatus(env);
+        return (
+          <Lozenge key={envId} appearance={appearance}>
+            {`${envId}: ${text}`}
+          </Lozenge>
+        );
+      })}
+      {hasDraft &&
+        (tooltipContent ? (
+          <Tooltip content={tooltipContent}>{draftLozenge}</Tooltip>
+        ) : (
+          draftLozenge
+        ))}
+    </>
+  );
 }
