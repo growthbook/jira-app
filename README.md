@@ -13,6 +13,14 @@ See [Set up Forge](https://developer.atlassian.com/platform/forge/set-up-forge/)
 - Use the `forge install` command when you want to install the app on a new site.
 - Once the app is installed on a site, the site picks up the new app changes you deploy without needing to rerun the install command.
 
+### Deploying
+
+Every site running the app is listed by `forge install list`; the `Environment` column separates the `development` installs used for testing from the `production` installs customers use.
+
+1. Test with `forge tunnel` (or `forge deploy` — both only touch the `development` environment).
+2. Merge to `main`, check it out, then `forge deploy -e production`.
+3. If the deploy reports a major version bump (only happens when scopes or egress change), each site's admin must accept the upgrade before they see it; otherwise every production install picks it up automatically.
+
 ## Connecting to a self-hosted GrowthBook instance
 
 Forge apps must specify what urls they connect to before they're published, so to use this app with a non-cloud
@@ -31,7 +39,7 @@ index eee3f43..5d9ba32 100644
 @@ -28,11 +28,11 @@ resources:
  app:
    runtime:
-     name: nodejs20.x
+     name: nodejs24.x
 -  id: ari:cloud:ecosystem::app/78d5cfe5-5311-4e0e-9bbd-5be2ae1eb445
 +  id: generated-app-id
  permissions:
@@ -40,8 +48,8 @@ index eee3f43..5d9ba32 100644
    external:
      fetch:
        client:
--        - "https://api.growthbook.io"
-+        - "https://your-site-here.com"
+-        - address: https://api.growthbook.io
++        - address: https://your-site-here.com
 diff --git a/src/utils/consts.ts b/src/utils/consts.ts
 index 06e8ffa..73a7234 100644
 --- a/src/utils/consts.ts

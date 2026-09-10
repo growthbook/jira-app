@@ -1,6 +1,39 @@
 import { Lozenge, Tooltip } from "@forge/react";
 import React from "react";
-import { Feature } from "../../../utils/types";
+import type { ThemeAppearance } from "@atlaskit/lozenge";
+import {
+  Feature,
+  FeatureEnvironment,
+  FeatureRolloutRule,
+} from "../../../utils/types";
+
+function environmentStatus(env: FeatureEnvironment): {
+  text: string;
+  appearance: ThemeAppearance;
+} {
+  if (!env.enabled) return { text: "disabled", appearance: "default" };
+  const active = env.rules.filter((rule) => rule.enabled);
+  if (
+    active.some(
+      (rule) => rule.type === "experiment" || rule.type === "experiment-ref"
+    )
+  ) {
+    return { text: "experiment", appearance: "inprogress" };
+  }
+  const rollout = active.find(
+    (rule): rule is FeatureRolloutRule => rule.type === "rollout"
+  );
+  if (rollout) {
+    return {
+      text: `rolled out to ${Math.round(rollout.coverage * 100)}%`,
+      appearance: "inprogress",
+    };
+  }
+  return { text: "enabled", appearance: "success" };
+}
+
+// One lozenge per environment plus a draft marker. Renders as a fragment so
+// the parent Inline spaces them.
 export default function FeatureStatusLozenge({
   feature,
   tooltipContent,
@@ -8,15 +41,34 @@ export default function FeatureStatusLozenge({
   feature: Feature;
   tooltipContent?: string;
 }) {
-  const hasDraft = (feature.revisions || []).length > 0;
-  const lozenge = (
-    <Lozenge appearance={hasDraft ? "inprogress" : "success"}>
-      {hasDraft ? "draft" : "live"}
-    </Lozenge>
-  );
-
-  if (tooltipContent) {
-    return <Tooltip content={tooltipContent}>{lozenge}</Tooltip>;
+  // Archiving disables every environment, so per-environment state would mislead.
+  if (feature.archived) {
+    return (
+      <Tooltip content="Archived features are disabled in all environments">
+        <Lozenge appearance="removed">archived</Lozenge>
+      </Tooltip>
+    );
   }
-  return lozenge;
+
+  const hasDraft = (feature.revisions || []).length > 0;
+  const draftLozenge = <Lozenge appearance="new">draft</Lozenge>;
+
+  return (
+    <>
+      {Object.entries(feature.environments).map(([envId, env]) => {
+        const { text, appearance } = environmentStatus(env);
+        return (
+          <Lozenge key={envId} appearance={appearance}>
+            {`${envId}: ${text}`}
+          </Lozenge>
+        );
+      })}
+      {hasDraft &&
+        (tooltipContent ? (
+          <Tooltip content={tooltipContent}>{draftLozenge}</Tooltip>
+        ) : (
+          draftLozenge
+        ))}
+    </>
+  );
 }
